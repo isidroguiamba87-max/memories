@@ -94,7 +94,7 @@ function renderQREvento(e,s){
       <div class="ve-qr-det">
         <b>Detalhes</b>
         <div class="ve-qr-linha"><span>Link de partilha</span><button onclick="copiarTexto(cvLinkQR(ev(),sub()))">${ico('copiar')} Copiar link</button></div>
-        <div class="ve-qr-linha"><span>Descarregar QR Code</span><button onclick="baixarQRUrl(cvLinkQR(ev(),sub()),'${contrib?'envio':'pagina'}')" aria-label="Descarregar QR Code em PNG">${ico('descarregar')} PNG</button></div>
+        <div class="ve-qr-linha"><span>Descarregar QR Code</span><button onclick="baixarQRUrl(cvLinkQR(ev(),sub()),'${contrib?'envio':'pagina'}',{perfil:'${contrib?'convidado':'visitante'}'})" aria-label="Descarregar QR Code em PNG">${ico('descarregar')} PNG</button></div>
         <div class="ve-qr-linha"><span>Partilhar</span><span class="ve-redes">${htmlRedes()}</span></div>
       </div>
     </div>

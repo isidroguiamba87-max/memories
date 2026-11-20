@@ -2,7 +2,7 @@
    PÁGINA INICIAL (mobile primeiro — a versão de computador vem depois)
    ===================================================================== */
 #view-inicio{
-  --lp-laranja:#C8582B; --lp-laranja-esc:#A9441C; --lp-creme:#F7EFE6; --lp-creme2:#EFE2D3;
+  --lp-laranja:#B04A20; --lp-laranja-esc:#A9441C; --lp-creme:#F7EFE6; --lp-creme2:#EFE2D3;
   --lp-escuro:#1E1714; --lp-texto:#2A211C; --lp-suave:#6F6259;
   background:var(--lp-creme); color:var(--lp-texto); max-width:560px; margin:0 auto; position:relative; overflow:hidden;
 }
@@ -157,8 +157,8 @@ body.sem-scroll{overflow:hidden}
 .lp-folha-caixa h2{font-family:'Cormorant Garamond',serif; font-size:34px; font-weight:500; margin:8px 0 14px}
 .lp-folha-caixa .lp-menu-btn{position:absolute; top:12px; right:12px; color:#2A211C}
 .lp-folha-caixa .field input,.lp-folha-caixa .field select,.lp-folha-caixa .field textarea{background:#fff; border-color:#E6D5C3}
-.lp-folha .lp-eyebrow{color:#C8582B}
-.lp-folha .lp-btn{background:#C8582B}
+.lp-folha .lp-eyebrow{color:#B04A20}
+.lp-folha .lp-btn{background:#B04A20}
 
 /* pedidos no painel */
 .pedido{padding:14px 16px; margin-bottom:10px}
@@ -359,7 +359,7 @@ body.sem-scroll{overflow:hidden}
 .lpd [id^="lpd-"]{scroll-margin-top:80px}
 
 /* privacidade e termos */
-.lp-link-txt{color:#C8582B; text-decoration:underline; padding:0; font:inherit; display:inline}
+.lp-link-txt{color:#B04A20; text-decoration:underline; padding:0; font:inherit; display:inline}
 .lp-texto-legal h3{font-family:Inter,sans-serif; font-size:14px; font-weight:600; margin:18px 0 4px; color:#2A211C}
 .lp-texto-legal p{font-size:13.5px; color:#4A3F38; margin:0 0 6px; line-height:1.55}
 .envio-aceito{display:flex; gap:10px; align-items:flex-start; font-size:12.5px; color:var(--ink-soft); margin:4px 0 14px; cursor:pointer}

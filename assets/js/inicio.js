@@ -19,7 +19,7 @@ const IMG={noivos:'assets/img/hero-noivos.jpg', flores:'assets/img/flores-casame
 /* Serviços da página inicial: [ícone, nome, filtro da lista de eventos, imagem].
    A mesma imagem serve de fundo no topo da lista de eventos quando se escolhe esse tipo (fundoFiltro). */
 const SERVICOS=[['aneis','Casamentos','t:casamento',IMG.flores],['bolo','Aniversários','t:aniversario',IMG.danca],
-  ['cruz','Baptizados','t:batizado',IMG.batizado],['pessoas','Conferências','t:conferencia',POOL.disc[0]],
+  ['cruz','Baptizados','t:batizado',IMG.batizado],['pessoas','Conferências','t:conferencia',IMG.corporativo],
   ['pasta','Eventos Corporativos','corporativo',IMG.corporativo],['estrela','Galas e Homenagens','t:gala',IMG.dancaMz]];
 /* imagem de fundo para um filtro da lista ('t:<tipo>' ou id de categoria); vazio = sem fundo */
 const FUNDO_CAT={uniao:IMG.flores, familia:IMG.danca, corporativo:IMG.corporativo, homenagem:IMG.dancaMz};
@@ -152,7 +152,7 @@ function renderInicio(){
       <span class="lp-cont" id="lpCont">${lpSlide+1} / ${vit.lista.length}</span>
       <button class="lp-exp" onclick="lpExpandir()" aria-label="Ver em grande">${ico('expandir')}</button>
     </div>
-    <div class="lp-miniaturas">${vit.lista.map((f,i)=>`<button class="${i===lpSlide?'on':''}" onclick="lpVerSlide(${i})">${imgTag(f.src,'')}</button>`).join('')}</div>
+    <div class="lp-miniaturas">${vit.lista.map((f,i)=>`<button class="${i===lpSlide?'on':''}" onclick="lpVerSlide(${i})" aria-label="Ver foto ${i+1}">${imgTag(f.src,'')}</button>`).join('')}</div>
     <div class="lp-eyebrow">Galeria</div>
     <h2>Os momentos do seu evento, um só lugar.</h2>
     <p class="lp-p">Aceda à galeria de forma rápida e partilhe com quem mais importa.</p>

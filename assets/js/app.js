@@ -732,7 +732,7 @@ function htmlAcessos(e,s,perfil){
         <div class="qr-box" id="qr-pagina"></div>
         <div class="linkbox"><span id="lk-pagina">${esc(urlPagina(e,s))}</span></div>
         <div class="ac-acts"><button class="btn sm" onclick="copiar('lk-pagina')">Copiar link</button>
-          <button class="btn ghost sm" onclick="baixarQRUrl(urlPagina(ev(),sub()),'pagina-'+sub().id)">⇩ PNG</button></div>
+          <button class="btn ghost sm" onclick="baixarQRUrl(urlPagina(ev(),sub()),'pagina-'+sub().id,{perfil:'visitante',partes:[sub().id]})">⇩ PNG</button></div>
       </div></div>`:''}`;
 }
 function cartaoAcesso(e,a){
@@ -782,24 +782,105 @@ function remAcesso(id){if(NUVEM) return emNuvem.remAcesso(...arguments);
   if(!confirmado('acesso:'+id,'Remover “'+a.nome+'”? O link e o QR deixam de funcionar (as fotos ficam).')) return;
   e.acessos=e.acessos.filter(x=>x.id!==id); guardar(); renderAdmin(); toast('Removido.');
 }
+/* ---------- QR Codes com o logótipo ao centro ----------
+   Nível de correcção H (até ~30% do código pode ficar tapado) para o logótipo não estragar a leitura. */
+const QR_LOGO='assets/img/logo-gr.svg', QR_NOME='Memória', QR_LEMA='Galerias digitais de eventos';
 function desenharQR(el,url,tam){
   if(typeof QRCode==='undefined'){ el.innerHTML='<div class="tiny muted" style="padding:10px">Biblioteca de QR indisponível (sem internet?)</div>'; return; }
   el.innerHTML='';
-  new QRCode(el,{text:url,width:tam||150,height:tam||150,colorDark:'#1B1917',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  new QRCode(el,{text:url,width:tam||150,height:tam||150,colorDark:'#1B1917',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  el.classList.add('qr-com-logo');
+  el.insertAdjacentHTML('beforeend','<span class="qr-logo" aria-hidden="true"></span>');
 }
 function desenharQRs(){
   const e=ev(), s=sub();
   (e.acessos||[]).forEach(a=>{const el=document.getElementById('qr-'+a.id); if(el) desenharQR(el,urlRota(rotaAcesso(a)))});
   const p=document.getElementById('qr-pagina'); if(p) desenharQR(p,urlPagina(e,s));
 }
-function baixarQRUrl(url,nome){
-  if(typeof QRCode==='undefined'){toast('Biblioteca de QR indisponível.');return}
-  const tmp=document.createElement('div'); desenharQR(tmp,url,800);
-  const cv=tmp.querySelector('canvas');
-  if(cv && cv.toBlob) cv.toBlob(b=>{salvarBlob(b,slug(ev().titulo+'-qr-'+nome)+'.png'); toast('QR descarregado.')});
-  else toast('Não foi possível gerar o PNG neste navegador.');
+
+/* Textos do cartão conforme o tipo de QR: info = {perfil:'convidado'|'fotografo'|'visitante', nome, partes:[ids]} */
+function textosQR(e,info){
+  const p=(info&&info.perfil)||'visitante', nome=(info&&info.nome)||'';
+  const ids=(info&&info.partes)||[], partes=ids.length?e.subs.filter(x=>ids.includes(x.id)):e.subs;
+  const T={
+    convidado:{para:'Convidados'+(nome?' · '+nome:''), acao:'Aponte a câmara e envie as suas fotos e vídeos do evento.',
+               nota:'As fotos entram na galeria depois de aprovadas pela organização.'},
+    fotografo:{para:'Fotógrafo · '+(nome||'Página do fotógrafo'), acao:'Página do fotógrafo: publique as fotografias directamente na galeria.',
+               nota:'Uso exclusivo do fotógrafo — não partilhar com convidados.'},
+    visitante:{para:'Visitantes', acao:'Aponte a câmara para ver o programa e a galeria do evento.', nota:''}
+  }[p]||{para:nome||'Visitantes', acao:'', nota:''};
+  T.partes=partes.map(x=>x.titulo+(x.data?' · '+dataCurta(x.data):'')).join('   ·   ');
+  return T;
 }
-function baixarQRAcesso(id){const a=acesso(id); if(a) baixarQRUrl(urlRota(rotaAcesso(a)), a.nome)}
+function carregarImagem(src){
+  return new Promise((ok,falha)=>{ const im=new Image(); im.onload=()=>ok(im); im.onerror=falha; im.src=src; });
+}
+/* quebra um texto em linhas que caibam em "largura" */
+function linhasTexto(g,txt,largura){
+  const pal=String(txt||'').split(/\s+/), out=[]; let l='';
+  pal.forEach(w=>{ const t=l?l+' '+w:w; if(g.measureText(t).width>largura&&l){ out.push(l); l=w; } else l=t; });
+  if(l) out.push(l); return out;
+}
+/* Cartão em PNG: cabeçalho (logótipo + nome da plataforma), evento, QR com logótipo, para quem é e instruções. */
+async function baixarQRUrl(url,nome,info){
+  if(typeof QRCode==='undefined'){toast('Biblioteca de QR indisponível.');return}
+  toast('A preparar o QR Code…');
+  try{
+    const e=ev(), t=textosQR(e,info);
+    try{ await Promise.all(['500 64px "Cormorant Garamond"','600 30px Inter','400 26px Inter'].map(f=>document.fonts.load(f))); }catch(_){}
+    const logo=await carregarImagem(QR_LOGO);
+    const tmp=document.createElement('div');
+    new QRCode(tmp,{text:url,width:760,height:760,colorDark:'#1B1917',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+    const qr=tmp.querySelector('canvas');
+
+    const W=1200, H=1800, c=document.createElement('canvas'); c.width=W; c.height=H;
+    const g=c.getContext('2d'), serif='"Cormorant Garamond",Georgia,serif', sans='Inter,system-ui,sans-serif';
+    const acc='#A55C38', tinta='#2A1D16', suave='#6F5E53';
+    g.fillStyle='#FAF3EC'; g.fillRect(0,0,W,H);
+
+    // cabeçalho
+    g.fillStyle='#2B1C14'; g.fillRect(0,0,W,190);
+    g.drawImage(logo,70,45,100,100);
+    g.fillStyle='#FFFFFF'; g.font='500 68px '+serif; g.textBaseline='middle'; g.fillText(QR_NOME,195,88);
+    g.fillStyle='#E6C9B3'; g.font='400 24px '+sans; g.fillText(QR_LEMA,198,140);
+    g.fillStyle=acc; g.fillRect(0,190,W,8);
+
+    // evento
+    g.textAlign='center'; g.textBaseline='alphabetic';
+    g.fillStyle=acc; g.font='600 22px '+sans; g.fillText(TIPOS[e.subs[0].tipo].n.toUpperCase(),W/2,268);
+    g.fillStyle=tinta; g.font='500 64px '+serif;
+    const titulo=typeof tituloLongo==='function'?tituloLongo(e):e.titulo;
+    let y=340; linhasTexto(g,titulo,W-160).slice(0,2).forEach(l=>{ g.fillText(l,W/2,y); y+=70; });
+    g.fillStyle=suave; g.font='400 26px '+sans;
+    g.fillText([intervaloDatas(e),e.local].filter(Boolean).join('   ·   '),W/2,y+4);
+
+    // QR com moldura e logótipo ao centro
+    const Q=760, qx=(W-Q)/2, qy=y+50;
+    g.fillStyle='#FFFFFF'; g.strokeStyle='#E8D6C6'; g.lineWidth=2;
+    g.beginPath(); g.roundRect(qx-40,qy-40,Q+80,Q+80,36); g.fill(); g.stroke();
+    g.drawImage(qr,qx,qy,Q,Q);
+    const L=Q*0.22, lx=W/2-L/2, ly=qy+Q/2-L/2;
+    g.fillStyle='#FFFFFF'; g.beginPath(); g.roundRect(lx-14,ly-14,L+28,L+28,30); g.fill();
+    g.drawImage(logo,lx,ly,L,L);
+
+    // para quem + instruções
+    y=qy+Q+110;
+    g.fillStyle=acc; g.font='600 22px '+sans; g.fillText('PARA',W/2,y);
+    g.fillStyle=tinta; g.font='600 40px '+sans; g.fillText(t.para,W/2,y+52);
+    g.fillStyle=suave; g.font='400 27px '+sans; y+=108;
+    linhasTexto(g,t.acao,W-200).forEach(l=>{ g.fillText(l,W/2,y); y+=38; });
+    if(t.partes){ g.fillStyle=tinta; g.font='500 24px '+sans; linhasTexto(g,t.partes,W-200).slice(0,2).forEach(l=>{ g.fillText(l,W/2,y+6); y+=34; }); }
+    if(t.nota){ g.fillStyle=suave; g.font='italic 400 22px '+sans; g.fillText(t.nota,W/2,y+14); }
+
+    // rodapé: endereço
+    g.fillStyle='#EFE1D4'; g.fillRect(0,H-90,W,90);
+    g.fillStyle=suave; g.font='400 21px '+sans;
+    const u=url.length>78?url.slice(0,75)+'…':url; g.fillText(u,W/2,H-38);
+
+    c.toBlob(b=>{ salvarBlob(b,slug(e.titulo+'-qr-'+nome)+'.png'); toast('QR Code descarregado.'); },'image/png');
+  }catch(err){ console.error(err); toast('Não foi possível gerar o PNG neste navegador.'); }
+}
+function baixarQRAcesso(id){const a=acesso(id); if(a) baixarQRUrl(urlRota(rotaAcesso(a)), a.nome, {perfil:a.perfil, nome:a.nome, partes:a.partes})}
 
 /* moderação */
 function htmlModeracao(e,s){

@@ -385,3 +385,8 @@ button.mini:hover{background:var(--line)}
 .lp-marca .logo-svg{width:42px; height:23px}
 .lp-marca.grande .logo-svg{width:54px; height:30px}
 .pn-marca .logo-svg{width:38px; height:21px}
+
+/* QR Codes: logótipo ao centro (sobre o código, nível de correcção H) */
+.qr-com-logo{position:relative}
+.qr-logo{position:absolute; inset:0; margin:auto; width:24%; height:24%; border-radius:18%; background:#fff url("../img/logo-gr.svg") center/82% no-repeat;
+  box-shadow:0 0 0 3px #fff; pointer-events:none}
