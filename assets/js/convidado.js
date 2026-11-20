@@ -99,7 +99,7 @@ function renderQREvento(e,s){
       </div>
     </div>
     <p class="ve-qr-nota">${ico('info')} ${contrib?'Este código abre a página de envio de fotos para a galeria do evento.':'Este código abre esta página: programa e galeria.'}
-      ${servidorRede()?'':' Nesta demonstração o endereço é ilustrativo.'}</p>`;
+      ${NUVEM?'':' Na demonstração, este evento de exemplo só existe neste navegador.'}</p>`;
   desenharQR(document.getElementById('evQRcaixa'),url,180);
 }
 

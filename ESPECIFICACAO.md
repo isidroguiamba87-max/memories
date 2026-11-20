@@ -152,7 +152,7 @@ Ordem sugerida, cada passo entregável por si:
 ## 6. Decisões em aberto
 
 - Domínio por evento (`nelia-tomas.memoria.co.mz`) ou caminho
-  (`galeria.mediacraft.co.mz/nelia-tomas`). O protótipo assume caminho.
+  (`memories-sigma-flax.vercel.app/#evento/nelia-tomas`). O protótipo usa caminho com `#`.
 - Prazo de retenção dos ficheiros e quem paga o armazenamento depois do evento.
 - Se o mural de votos passa também por moderação. Recomendado: sim, pelo mesmo
   motivo que as fotos.

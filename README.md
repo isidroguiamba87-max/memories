@@ -4,8 +4,8 @@ Protótipo funcional de uma plataforma onde cada evento tem a sua própria pági
 programa, galeria organizada por momento, envio de fotografias por QR Code e painel
 de administração. O primeiro evento é um casamento (evento piloto).
 
-Nasce da mesma ideia do mini-site de eventos já em produção
-(`galeria.mediacraft.co.mz` / `fotos.mediacraft.co.mz`), mas reorganizado como
+Endereço público: **https://memories-sigma-flax.vercel.app/** — todos os links partilhados e QR Codes
+apontam para aqui (constante `SITE_URL` em `assets/js/config.js`). Pensado como
 plataforma multi-evento e com linguagem de eventos sociais.
 
 ## Como abrir
@@ -101,9 +101,10 @@ e o `.vercelignore` já estão prontos.
 1. Criar conta em [vercel.com](https://vercel.com) (pode ser com o GitHub).
 2. Na pasta do projecto: `npx vercel` (faz login e liga o projecto) e depois `npx vercel --prod`.
    Alternativa: pôr o projecto no GitHub e, na Vercel, *Add New → Project → Import*.
-3. Em *Settings → Domains*, juntar o domínio escolhido (ex.: `galeria.mediacraft.co.mz`) e criar
+3. Em *Settings → Domains*, juntar o domínio escolhido e criar
    no fornecedor do domínio o registo DNS que a Vercel indicar.
 4. No Supabase, *Authentication → URL Configuration*: pôr o endereço do site em **Site URL**.
+5. Se o domínio mudar, actualizar `SITE_URL` em `assets/js/config.js` (links e QR Codes usam-no).
 
 Os QR Codes gerados no painel usam automaticamente o endereço onde o site está aberto, por isso
 passam a apontar para o domínio real assim que o painel for usado a partir dele.

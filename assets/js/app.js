@@ -210,6 +210,17 @@ function renderVista(v){
   document.body.dataset.vista=v;
   document.querySelector('.topbar').style.display=['inicio','eventos','evento'].includes(v)?'none':'';
   if(v!=='inicio') lpMenu(false);
+  metaVista(v);
+}
+/* Título do separador por vista; páginas privadas (eventos, links de convidado/fotógrafo, painel) ficam fora dos motores de busca. */
+const TITULO_BASE=document.title;
+function metaVista(v){
+  let e=null; try{ if(v==='evento'||v==='convidado'||v==='fotografo') e=ev(); }catch(_){}
+  document.title=({inicio:TITULO_BASE, eventos:'Eventos · Memória', admin:'Painel · Memória', aviso:'Memória'}[v])
+    || (e&&e.titulo?e.titulo+' · Memória':'Memória');
+  let m=document.querySelector('meta[name="robots"]');
+  if(!m){ m=document.createElement('meta'); m.name='robots'; document.head.appendChild(m); }
+  m.content=v==='inicio'?'index, follow, max-image-preview:large':'noindex, nofollow';
 }
 function renderTudo(){ renderVista(vistaActual); }
 
@@ -692,15 +703,15 @@ function remMissao(id){if(NUVEM) return emNuvem.remMissao(...arguments);
 }
 
 /* acessos (links + QR de convidados e páginas de fotógrafos) */
-function servidorRede(){return /^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)}
 function rotaAcesso(a){return (a.perfil==='convidado'?'c/':'f/')+a.token}
-function urlRota(r){return servidorRede() ? location.origin+location.pathname+'#'+r : 'https://galeria.mediacraft.co.mz/'+r}
-function urlPagina(e,s){return urlRota(servidorRede()?'evento/'+e.id+'/'+s.id:e.id+'/'+s.id)}
+/* Links e QR Codes apontam sempre para o domínio público (SITE_URL, em config.js). */
+function urlRota(r){return String((typeof SITE_URL!=='undefined'&&SITE_URL)||location.origin+location.pathname).replace(/\/?$/,'/')+'#'+r}
+function urlPagina(e,s){return urlRota('evento/'+e.id+'/'+s.id)}
 function htmlAcessos(e,s,perfil){
   const conv=perfil==='convidado', lista=(e.acessos||[]).filter(a=>a.perfil===perfil);
-  return `<div class="qr-nota small">${servidorRede()
-      ? 'Estes links abrem esta demonstração neste servidor — experimenta com o celular ligado à mesma rede.'
-      : 'Endereços de produção ilustrativos. Para QR que funcionem no celular, abre o painel pelo endereço de rede do computador (ex.: http://10.x.x.x:8000/#admin).'}</div>
+  return `<div class="qr-nota small">${NUVEM
+      ? 'Os links e QR Codes apontam para '+esc(urlRota('').replace(/#$/,''))+' — funcionam em qualquer celular.'
+      : 'Modo demonstração: os links apontam para '+esc(urlRota('').replace(/#$/,''))+', mas estes eventos de exemplo só existem neste navegador.'}</div>
     <h3>${conv?'Links e QR Codes para convidados':'Páginas dos fotógrafos'}</h3>
     <p class="muted small">${conv
       ? 'Cria quantos QR precisares: um único para todos (convite, mesas) ou um por grupo (família da noiva, padrinhos…). O mesmo QR serve para quantas pessoas quiseres. Tudo o que chega por aqui fica pendente de moderação.'

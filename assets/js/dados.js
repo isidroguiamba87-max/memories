@@ -264,9 +264,14 @@ const POOL={
 const usados={};
 function proxSrc(f){const a=POOL[f]||[]; if(!a.length)return ''; usados[f]=(usados[f]||0); const u=a[usados[f]%a.length]; usados[f]++; return u;}
 function hi(u){return u&&u.indexOf('/240_F_')>-1 ? u.replace('/240_F_','/500_F_') : u;}
-function imgTag(u,alt,cls){
-  return `<img ${cls?'class="'+cls+'" ':''}src="${hi(u)}" data-o="${u}" alt="${alt||''}" loading="lazy"
-    onerror="if(!this.dataset.fb&&this.dataset.o){this.dataset.fb=1;this.src=this.dataset.o}">`;
+/* Fotos do próprio site (assets/img/*.jpg) são servidas em WebP (800 e 1600 px); o JPG fica de reserva.
+   prio=true: imagem principal da página (sem carregamento diferido, prioridade alta — melhora o LCP). */
+function imgTag(u,alt,cls,prio){
+  const loc=/^assets\/img\/[\w-]+\.jpg$/.test(u||''), b=loc?u.slice(0,-4):'';
+  const fontes=loc?`src="${b}.webp" srcset="${b}-800.webp 800w, ${b}.webp 1600w" sizes="(min-width:900px) 50vw, 100vw" `:`src="${hi(u)}" `;
+  const a=String(alt||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  return `<img ${cls?'class="'+cls+'" ':''}${fontes}data-o="${u}" alt="${a}" ${prio?'fetchpriority="high"':'loading="lazy"'} decoding="async"
+    onerror="if(!this.dataset.fb&&this.dataset.o){this.dataset.fb=1;this.removeAttribute('srcset');this.src=this.dataset.o}">`;
 }
 
 /* Imagem gerada (SVG) para momentos sem fotografia de demonstração. */

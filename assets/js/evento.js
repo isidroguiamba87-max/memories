@@ -331,7 +331,7 @@ function abrirPartilha(){
       <h2 id="vpTit">Galeria pronta!</h2>
       <p>Partilhe o link com quem quiser<br>e reviva estes momentos.</p>
       <div class="vp-url"><span>${esc(url)}</span><button onclick="copiarTexto(linkEvento())" aria-label="Copiar link">${ico('copiar')}</button></div>
-      ${servidorRede()?'':'<p class="vp-nota">Endereço ilustrativo nesta demonstração.</p>'}
+      ${NUVEM?'':'<p class="vp-nota">Demonstração: este evento de exemplo só existe neste navegador.</p>'}
       <button class="ve-btn" onclick="copiarTexto(linkEvento())">Copiar link</button>
       <button class="vp-partilhar" onclick="partilharNativo()">${ico('partilha')} Partilhar</button>
     </div>

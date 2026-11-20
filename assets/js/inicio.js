@@ -102,7 +102,7 @@ function renderInicio(){
   </header>
 
   <section class="lp-hero" id="lp-topo">
-    <div class="lp-hero-img">${imgTag('assets/img/hero-noivos.jpg','Noivos sorriem, testa com testa, no dia do casamento')}</div>
+    <div class="lp-hero-img">${imgTag('assets/img/hero-noivos.jpg','Noivos sorriem, testa com testa, no dia do casamento','',true)}</div>
     <div class="lp-hero-txt">
       <h1>Cada evento tem momentos que merecem ser encontrados.</h1>
       <p>Galerias digitais para reviver, partilhar e guardar memórias.</p>
@@ -297,7 +297,7 @@ function htmlDesktop(vit,wa,c,sociais){
   </header>
 
   <section class="lpd-hero" id="lpd-topo">
-    <div class="lpd-hero-img">${imgTag('assets/img/hero-noivos.jpg','Noivos sorriem, testa com testa, no dia do casamento')}</div>
+    <div class="lpd-hero-img">${imgTag('assets/img/hero-noivos.jpg','Noivos sorriem, testa com testa, no dia do casamento','',true)}</div>
     <div class="lpd-in lpd-hero-txt">
       <h1>Cada evento tem momentos que merecem ser encontrados.</h1>
       <p>Organizamos fotografias de eventos em galerias digitais, para que possa aceder, visualizar e partilhar.</p>

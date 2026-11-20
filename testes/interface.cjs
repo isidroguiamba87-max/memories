@@ -50,7 +50,7 @@ const ok = (c, m) => { console.log((c ? '✓ ' : '✗ FALHOU: ') + m); if (!c) p
   ok(t.ev().descricao==='Um dia inesquecível' && w.document.querySelector('.pn-mapa'), 'admin 2: guardar informações + mapa');
   t.setEvAba('qr'); ok(w.document.querySelector('[id^="qrd-"]') && w.document.querySelector('.pn-qr-destaque .pn-tog'), 'admin 3: QR em destaque + Permitir envios');
   w.pnPerm('envios',false); ok(t.ev().perm.envios===false && t.ev().linkContribuir==='', 'admin 3/7: fechar envios esconde o link de contribuir'); w.pnPerm('envios',true);
-  ok(/\/c\/\w+/.test(t.ev().linkContribuir), 'linkContribuir activo');
+  ok(/[\/#]c\/[\w-]+/.test(t.ev().linkContribuir), 'linkContribuir activo');
   t.setEvAba('videos'); w.pnVideoTipo='link'; w.renderAdmin();
   w.eval('pnVideoTipo="link"'); w.renderAdmin(); w.document.getElementById('vdTitulo').value='Cerimónia em directo'; w.document.getElementById('vdUrl').value='https://www.youtube.com/live/abc12345'; await w.pnAddVideo();
   ok(t.ev().videos.length===1 && t.ev().videos[0].embed==='https://www.youtube.com/embed/abc12345' && w.document.querySelector('.pn-video iframe'), 'admin 5: vídeo (link YouTube → embed)');
@@ -86,6 +86,7 @@ const ok = (c, m) => { console.log((c ? '✓ ' : '✗ FALHOU: ') + m); if (!c) p
   w.abrirPrivacidade(); ok(!!w.document.querySelector('#privacidade.on .lp-texto-legal h3'), 'privacidade: página de termos abre'); w.fecharPrivacidade();
   ok(w.erros.length === 0, 'demo: fluxo sem erros ' + w.erros.join(' | '));
   t.ir('eventos'); ok(w.document.querySelectorAll('#view-eventos [data-go^="evento/"], #view-eventos [onclick*="evento/"]').length >= 5, 'demo: catálogo com eventos');
+{ const rob=()=>w.document.querySelector('meta[name="robots"]').content;    ok(/noindex/.test(rob()) && w.document.title==='Eventos · Memória', 'SEO: catálogo com título próprio e noindex');    t.ir('evento/nelia-tomas'); ok(/noindex/.test(rob()) && / · Memória$/.test(w.document.title) && !/^Memória/.test(w.document.title), 'SEO: evento privado com título do evento e noindex');    t.ir('inicio'); ok(/^index/.test(rob()) && /Moçambique/.test(w.document.title), 'SEO: página inicial indexável com título principal');    ok(w.document.querySelectorAll('meta[name="robots"]').length===1, 'SEO: uma só meta robots');    const im=w.document.querySelector('.lp-hero-img img'); ok(im && /hero-noivos-800.webp 800w/.test(im.getAttribute('srcset')) && im.getAttribute('fetchpriority')==='high' && !im.hasAttribute('loading'), 'desempenho: hero em WebP com srcset e prioridade alta'); }
   t.ir('c/al-lobolo'); ok(t.vistaActual === 'convidado', 'demo: link de convidado abre');
   t.ir('admin/andre-lucia/lobolo'); t.setEvAba('fotografos');
   ok(w.document.querySelectorAll('.qr-card').length === 2, 'demo: 2 fotógrafos no André & Lúcia');

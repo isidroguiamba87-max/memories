@@ -1,0 +1,16 @@
+# Memória
+
+> Plataforma moçambicana para guardar e partilhar as fotos e os vídeos de eventos: casamentos, lobolos, baptizados, aniversários, conferências e eventos corporativos.
+
+## O que faz
+- Cada evento tem uma galeria privada, dividida por partes (por exemplo: lobolo e casamento).
+- Os convidados enviam fotos e vídeos através de um link ou QR Code, sem criar conta.
+- Os fotógrafos têm o seu próprio link de envio para cada evento.
+- A organização revê o que chega antes de publicar e pode descarregar tudo em ZIP.
+
+## Páginas
+- [Página inicial](https://memories-sigma-flax.vercel.app/): serviços, como funciona e pedido de galeria.
+
+## Notas
+- As galerias de eventos são privadas e não estão indexadas.
+- Língua: português (Moçambique).

@@ -5,6 +5,9 @@ const SUPABASE={
   chave:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdyeGJ2cGtkZ3ZyaXdxdmtia3lpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwOTU0NjMsImV4cCI6MjExMDY3MTQ2M30.SzMXywkVhm9-R3hehu9Q3luChoLlQg3bBYSzT8HU9ek'
 };
 
+/* Endereço público do site. Todos os links partilhados e QR Codes apontam para aqui. */
+const SITE_URL='https://memories-sigma-flax.vercel.app/';
+
 /* Contactos mostrados na página inicial. Vazio = o botão/ícone não aparece.
    whatsapp: só números com indicativo, ex.: '258840000000' */
 const CONTACTO={

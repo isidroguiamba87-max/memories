@@ -1,0 +1,7 @@
+# Memória — só a página inicial é pública e indexável.
+# As galerias, os links de convidados/fotógrafos e o painel usam endereços com "#",
+# que não são indexados, e marcam-se como "noindex" quando abertos.
+User-agent: *
+Allow: /
+
+Sitemap: https://memories-sigma-flax.vercel.app/sitemap.xml
