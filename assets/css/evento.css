@@ -391,3 +391,18 @@ body[data-vista="eventos"],body[data-vista="evento"]{background:var(--ve-fundo)}
   .vl.com-fundo .vl-topo h1{font-size:40px}
   .vl-grid{gap:14px}
 }
+
+/* galeria: filtro de momentos — botões no computador, caixa de escolha no telemóvel */
+#view-evento .filtro-sel{display:none}
+@media(max-width:699px){
+  #view-evento .filters{display:block; overflow:visible; padding:0; margin-bottom:16px}
+  #view-evento .filters .chip{display:none}
+  #view-evento .filtro-sel{display:flex; align-items:center; gap:10px; width:100%; height:50px; padding:0 14px 0 18px; border-radius:999px;
+    background:var(--ve-papel); border:1px solid var(--ve-linha); position:relative; cursor:pointer}
+  #view-evento .filtro-sel>span{font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--ve-acc); flex:0 0 auto}
+  #view-evento .filtro-sel select{flex:1; min-width:0; height:100%; border:0; background:transparent; font:inherit; font-size:14px; font-weight:600;
+    color:var(--ve-tinta); appearance:none; -webkit-appearance:none; padding-right:26px; text-overflow:ellipsis; cursor:pointer; outline:none}
+  #view-evento .filtro-sel::after{content:''; position:absolute; right:20px; top:50%; width:8px; height:8px; margin-top:-6px;
+    border-right:2px solid var(--ve-tinta); border-bottom:2px solid var(--ve-tinta); transform:rotate(45deg); pointer-events:none}
+  #view-evento .filtro-sel:focus-within{border-color:var(--ve-acc); box-shadow:0 0 0 3px color-mix(in srgb,var(--ve-acc) 18%,transparent)}
+}

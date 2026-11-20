@@ -1,6 +1,13 @@
-# Só o site vai para a Vercel: index.html + assets/
 node_modules
 supabase
+testes
 *.md
 /*.png
+/*.svg
+package.json
 package-lock.json
+serve.json
+.env*
+.git
+.claude
+.vscode
