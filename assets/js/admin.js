@@ -59,7 +59,7 @@ function renderPainel(emEvento){
   const activo=emEvento?'eventos':(admAba==='novo'||admAba==='modelos'?'eventos':admAba);
   document.getElementById('admRoot').innerHTML=`<div class="pn">
     <aside class="pn-lado">
-      <div class="pn-marca"><i></i> Memória</div>
+      <div class="pn-marca">${logoSvg()} Memória</div>
       <nav>${itens.map(([k,ic,n,c])=>`<button class="${activo===k?'on':''}" data-go="${k==='dashboard'?'admin':'admin/'+k}">
         <span class="pn-ic">${ic}</span>${n}${c?`<b class="pn-badge">${c}</b>`:''}</button>`).join('')}</nav>
       <button class="pn-novo" data-go="admin/novo">+ Novo evento</button>

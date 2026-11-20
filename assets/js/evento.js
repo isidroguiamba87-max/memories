@@ -94,22 +94,25 @@ function renderCatalogo(){
   const v=document.getElementById('view-eventos');
   if(!v.querySelector('.vl')){
     v.innerHTML=`<div class="vl">
+      <div class="vl-capa" aria-hidden="true"></div>
       <header class="vl-topo">
         <button class="vl-icbtn" onclick="ir('inicio')" aria-label="Voltar ao início">${ico('voltar')}</button>
-        <h1 id="vlTitulo">Eventos</h1><span></span>
+        <div class="vl-tit"><h1 id="vlTitulo">Eventos</h1><p id="vlConta"></p></div><span></span>
       </header>
       <label class="vl-busca">${ico('busca')}<input id="vlBusca" type="search" placeholder="Pesquisar eventos..." autocomplete="off"
         oninput="vlBusca=this.value;renderGrelha()"></label>
       <div class="vl-chips"><div class="vl-chips-rol" id="vlChips"></div>
         <button class="vl-icbtn" onclick="abrirCategorias()" aria-label="Filtrar por categoria">${ico('filtros')}</button></div>
       <div id="vlGrelha"></div>
-      <p class="vl-rodape">${NUVEM?'':'Demonstração — eventos e nomes fictícios. '}<a href="#admin">Área da organização</a></p>
+      ${NUVEM?'':'<p class="vl-rodape">Demonstração — eventos e nomes fictícios.</p>'}
     </div>
     <nav class="vl-nav" id="vlNav"></nav>`;
   }
   document.getElementById('vlBusca').value=vlBusca;
-  if(filtroCat!=='todas' && !eventosPublicos().some(e=>passaFiltro(e,filtroCat))) filtroCat='todas';
+  /* um tipo vindo dos serviços mantém-se mesmo sem eventos (mostra o fundo e "ainda não há eventos") */
+  if(filtroCat!=='todas' && !fundoDoFiltro(filtroCat) && !eventosPublicos().some(e=>passaFiltro(e,filtroCat))) filtroCat='todas';
   document.getElementById('vlTitulo').textContent=catModo==='galerias'?'Galerias':'Eventos';
+  pintarFundoCat();
   const fs=['todas',...(guardados().some(id=>eventosPublicos().some(e=>e.id===id))?['guardados']:[]),...tiposComEventos().map(t=>'t:'+t)];
   if(!fs.includes(filtroCat)) fs.splice(1,0,filtroCat);
   document.getElementById('vlChips').innerHTML=fs.map(f=>
@@ -121,6 +124,8 @@ function renderCatalogo(){
 }
 function renderGrelha(){
   const lista=eventosFiltrados(), g=catModo==='galerias';
+  const conta=document.getElementById('vlConta');
+  if(conta) conta.textContent=lista.length+' '+(g?(lista.length===1?'galeria':'galerias'):(lista.length===1?'evento':'eventos'));
   document.getElementById('vlGrelha').innerHTML = lista.length
     ? `<div class="vl-grid">${lista.map(g?cartaoGaleria:cartaoEvento).join('')}</div>`
     : `<div class="vl-vazio">${vlBusca?'Nenhum evento corresponde à pesquisa.':g?'Ainda não há galerias com fotografias publicadas.':'Ainda não há eventos nesta categoria.'}</div>`;
@@ -144,6 +149,16 @@ function cartaoGaleria(e){
   </button>`;
 }
 function setCat(c){ filtroCat=c; renderCatalogo(); }
+/* fundo do topo da lista: a imagem do serviço/tipo escolhido (fundoFiltro, em inicio.js) */
+function fundoDoFiltro(f){ return typeof fundoFiltro==='function'?fundoFiltro(f):''; }
+function pintarFundoCat(){
+  const vl=document.querySelector('#view-eventos .vl'); if(!vl) return;
+  /* sem tipo escolhido ("Todos", "Guardados"): a foto principal do site */
+  const tipo=fundoDoFiltro(filtroCat), img=tipo||(typeof IMG!=='undefined'?IMG.noivos:'');
+  vl.classList.toggle('com-fundo',!!img);
+  vl.querySelector('.vl-capa').style.backgroundImage=img?'url("'+img.replace(/"/g,'%22')+'")':'';
+  if(tipo) document.getElementById('vlTitulo').textContent=(typeof nomeServico==='function'&&nomeServico(filtroCat))||nomeFiltro(filtroCat);
+}
 function setModo(m){ catModo=m; renderCatalogo(); window.scrollTo({top:0}); }
 function irSobre(){ ir('inicio'); setTimeout(()=>{ if(typeof lpIr==='function') lpIr('lp-como'); },60); }
 

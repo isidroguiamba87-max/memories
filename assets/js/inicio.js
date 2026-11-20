@@ -1,10 +1,35 @@
 /* Página inicial (landing) — versão mobile — e formulário de pedidos. */
 
 let PEDIDOS=[];
+/* Logótipo (assets/img/logo-simbolo.svg) em linha: o arco escuro usa a cor do texto (currentColor),
+   para se ver em fundos claros e escuros; o arco terracota mantém-se. */
+let LOGO_N=0;
+function logoSvg(cls){
+  const id='lgm'+(++LOGO_N);
+  return `<svg class="logo-svg ${cls||''}" viewBox="0 0 232 128" aria-hidden="true" focusable="false"><defs><mask id="${id}">
+    <rect x="-20" y="-20" width="280" height="180" fill="#fff"/><path d="M 130 128 V 56 A 42 42 0 0 1 214 56 V 128" fill="none" stroke="#000" stroke-width="42"/></mask></defs>
+    <path d="M 18 128 V 86 A 50 50 0 0 1 118 86 V 128" fill="none" stroke="#A55C38" stroke-width="28" mask="url(#${id})"/>
+    <path d="M 130 128 V 56 A 42 42 0 0 1 214 56 V 128" fill="none" stroke="currentColor" stroke-width="28"/>
+    <circle cx="172" cy="72" r="9" fill="#A55C38"/></svg>`;
+}
 /* Fotografias próprias do site (assets/img). */
 const IMG={noivos:'assets/img/hero-noivos.jpg', flores:'assets/img/flores-casamento.jpg', danca:'assets/img/danca-africana.jpg',
   dancaMz:'assets/img/danca-mocambicana.jpg', batizado:'assets/img/batizado-igreja.jpg', corporativo:'assets/img/corporativo-banquete.jpg',
   batizadoBanner:'assets/img/batizado-conversa.jpg', culturaisBanner:'assets/img/eventos-culturais.jpg'};
+/* Serviços da página inicial: [ícone, nome, filtro da lista de eventos, imagem].
+   A mesma imagem serve de fundo no topo da lista de eventos quando se escolhe esse tipo (fundoFiltro). */
+const SERVICOS=[['aneis','Casamentos','t:casamento',IMG.flores],['bolo','Aniversários','t:aniversario',IMG.danca],
+  ['cruz','Baptizados','t:batizado',IMG.batizado],['pessoas','Conferências','t:conferencia',POOL.disc[0]],
+  ['pasta','Eventos Corporativos','corporativo',IMG.corporativo],['estrela','Galas e Homenagens','t:gala',IMG.dancaMz]];
+/* imagem de fundo para um filtro da lista ('t:<tipo>' ou id de categoria); vazio = sem fundo */
+const FUNDO_CAT={uniao:IMG.flores, familia:IMG.danca, corporativo:IMG.corporativo, homenagem:IMG.dancaMz};
+function fundoFiltro(f){
+  if(!f||f==='todas'||f==='guardados') return '';
+  const s=SERVICOS.find(x=>x[2]===f); if(s) return s[3];
+  const cat=f.startsWith('t:')?(TIPOS[f.slice(2)]||{}).cat:f;
+  return FUNDO_CAT[cat]||'';
+}
+function nomeServico(f){const s=SERVICOS.find(x=>x[2]===f); return s?s[1]:''}
 const CHAVE_PEDIDOS='memoria.pedidos';
 const CAT_CURTA={uniao:'Casamentos', familia:'Celebrações', corporativo:'Corporativo', homenagem:'Homenagens'};
 let lpCat='todas', lpBusca='', lpSlide=0;
@@ -71,8 +96,8 @@ function renderInicio(){
   const wa=linkWhats(), c=contacto();
   const sociais=[['instagram','Instagram'],['youtube','YouTube'],['facebook','Facebook']].filter(([k])=>c[k]);
   document.getElementById('view-inicio').innerHTML=`<div class="lpm">
-  <header class="lp-topo">
-    <div class="lp-marca"><i></i> Memória</div>
+  <header class="lp-topo" id="lpTopo">
+    <div class="lp-marca">${logoSvg()} Memória</div>
     <button class="lp-menu-btn" onclick="lpMenu(true)" aria-label="Abrir menu">${ico('menu')}</button>
   </header>
 
@@ -102,8 +127,8 @@ function renderInicio(){
     <div class="lp-eyebrow">Serviços</div>
     <h2>Uma solução para todos os eventos.</h2>
     <div class="lp-grid4">
-      ${[['coracao','Casamentos','uniao'],['pasta','Eventos Corporativos','corporativo'],['tacas','Celebrações','familia'],['pessoas','Conferências','corporativo']]
-        .map(([i,n,c])=>`<button class="lp-serv" onclick="lpCategoria('${c}')">${ico(i)}<span>${n}</span></button>`).join('')}
+      ${SERVICOS.map(([i,n,f,img])=>`<button class="lp-serv com-foto" onclick="lpCategoria('${f}')">${imgTag(img,'')}
+        <span class="lp-serv-txt">${ico(i)}<span>${n}</span></span></button>`).join('')}
     </div>
     <button class="lp-barra" onclick="lpIr('lp-como')">${ico('imagem')}<span>Galerias organizadas com cuidado.</span><b>${ico('seta')}</b></button>
   </section>
@@ -162,11 +187,10 @@ function renderInicio(){
     <button class="lp-btn" onclick="abrirPedido('informacao')">Solicitar informações ${ico('seta')}</button>
     ${wa?`<a class="lp-btn contorno" href="${esc(wa)}" target="_blank" rel="noopener">${ico('whatsapp')} Falar no WhatsApp</a>`:''}
     <div class="lp-rodape">
-      <div class="lp-marca grande"><i></i> Memória</div>
+      <div class="lp-marca grande">${logoSvg()} Memória</div>
       <small>Galerias digitais para eventos.</small>
       ${sociais.length?`<div class="lp-sociais">${sociais.map(([k,n])=>`<a href="${esc(c[k])}" target="_blank" rel="noopener" aria-label="${n}">${ico(k)}</a>`).join('')}${wa?`<a href="${esc(wa)}" target="_blank" rel="noopener" aria-label="WhatsApp">${ico('whatsapp')}</a>`:''}</div>`:''}
       <button class="lp-org" onclick="abrirPrivacidade()">Privacidade e termos</button>
-      <button class="lp-org" data-go="admin">Área da organização</button>
       ${NUVEM?'':'<small class="lp-credito">Algumas fotografias de demonstração: Adobe Stock (nível gratuito).</small>'}
     </div>
   </section>
@@ -176,7 +200,6 @@ function renderInicio(){
     ${[['lp-topo','Início'],['lp-eventos','Eventos'],['lp-servicos','Serviços'],['lp-como','Como funciona'],['lp-galeria','Galeria'],
        ['lp-fotografos','Para fotógrafos'],['lp-faq','Perguntas frequentes'],['lp-contacto','Contacto']]
       .map(([id,n])=>`<button onclick="lpIr('${id}')">${n}</button>`).join('')}
-    <button data-go="admin" class="lp-org">Área da organização</button>
   </nav></div>
   ${htmlDesktop(vit,wa,c,sociais)}`;
   lpChips(); lpCards();
@@ -258,9 +281,7 @@ function htmlDesktop(vit,wa,c,sociais){
       <div class="lpd-portatil"><div class="lpd-moldura"><div class="lpd-barra-app"><i></i>Memória</div>${ecra(12,'lpd-ecra')}</div><div class="lpd-teclado"></div></div>
       <div class="lpd-telemovel"><div class="lpd-barra-app"><i></i></div>${ecra(8,'lpd-ecra tel')}</div>
     </div>`;
-  const servicos=[['aneis','Casamentos','t:casamento',IMG.flores],['bolo','Aniversários','t:aniversario',IMG.danca],
-    ['cruz','Baptizados','t:batizado',IMG.batizado],['pessoas','Conferências','t:conferencia',POOL.disc[0]],
-    ['pasta','Eventos Corporativos','corporativo',IMG.corporativo],['estrela','Galas e Homenagens','t:gala',IMG.dancaMz]];
+  const servicos=SERVICOS;
   const faq=[['O que é uma galeria digital de eventos?','É uma página própria para o seu evento, com o programa e todas as fotografias e vídeos arrumados por momento, para ver, descarregar e partilhar.'],
     ['Posso enviar fotografias do meu telemóvel?','Sim. Pelo link ou QR Code do evento, directamente no telemóvel e sem instalar nada. As fotografias dos convidados aparecem depois de aprovadas pela organização.'],
     ['Como recebo o link da galeria?','Quando a galeria é criada, recebe o link da página do evento e os QR Codes: um para os convidados enviarem fotos, outro para cada fotógrafo e outro só para ver.'],
@@ -270,7 +291,7 @@ function htmlDesktop(vit,wa,c,sociais){
   const polaroids=[IMG.danca,IMG.flores,IMG.dancaMz,IMG.batizado];
   return `<div class="lpd">
   <header class="lpd-topo">
-    <div class="lpd-marca" data-go="inicio">${ico('folha','lpd-logo')}Memória</div>
+    <div class="lpd-marca" data-go="inicio">${logoSvg('lpd-logo')}Memória</div>
     <nav>${menu.map(([id,n],i)=>`<button class="${i===0?'on':''}" data-sec="${id}" onclick="lpIr('${id}')">${n}</button>`).join('')}</nav>
     <button class="lpd-btn" onclick="abrirPedido('galeria')">Solicitar uma galeria ${ico('seta')}</button>
   </header>
@@ -384,7 +405,7 @@ function htmlDesktop(vit,wa,c,sociais){
   <footer class="lpd-rodape">
     <div class="lpd-in lpd-rodape-in">
       <div class="lpd-rodape-marca">
-        <div class="lpd-marca">${ico('folha','lpd-logo')}Memória</div>
+        <div class="lpd-marca">${logoSvg('lpd-logo')}Memória</div>
         <small>Galerias Digitais de Eventos<br>Preservando momentos, criando histórias.</small>
       </div>
       ${sociais.length||wa?`<div class="lpd-sociais">${sociais.map(([k,n])=>`<a href="${esc(c[k])}" target="_blank" rel="noopener" aria-label="${n}">${ico(k)}</a>`).join('')}${wa?`<a href="${esc(wa)}" target="_blank" rel="noopener" aria-label="WhatsApp">${ico('whatsapp')}</a>`:''}</div>`:''}
@@ -394,7 +415,6 @@ function htmlDesktop(vit,wa,c,sociais){
     </div>
     <div class="lpd-in lpd-rodape-fim">
       <small>© ${new Date().getFullYear()} Memória. Todos os direitos reservados.${NUVEM?'':' Fotografias de demonstração: Adobe Stock (nível gratuito).'}</small>
-      <button data-go="admin">Área da organização</button>
     </div>
   </footer>
 </div>`;
@@ -527,3 +547,19 @@ function abrirPrivacidade(){
   document.body.classList.add('sem-scroll');
 }
 function fecharPrivacidade(){const m=document.getElementById('privacidade'); if(m) m.className='lp-folha'; if(!document.querySelector('.lp-folha.on')) document.body.classList.remove('sem-scroll')}
+
+
+/* ---------- cabeçalho da página inicial (mobile) ----------
+   Fica fixo e acompanha o scroll: transparente por cima da foto do topo;
+   translúcido enquanto há scroll; visível (fundo creme) quando o scroll pára. */
+let lpTopoTimer=null;
+function lpTopoScroll(){
+  const t=document.getElementById('lpTopo');
+  if(!t || vistaActual!=='inicio') return;
+  const hero=document.getElementById('lp-topo'), limite=Math.max(80,hero?hero.offsetHeight-70:200);
+  t.classList.toggle('solida', window.scrollY>limite);
+  t.classList.add('a-mexer');
+  clearTimeout(lpTopoTimer);
+  lpTopoTimer=setTimeout(()=>t.classList.remove('a-mexer'),260);
+}
+window.addEventListener('scroll',lpTopoScroll,{passive:true});

@@ -347,3 +347,47 @@ body[data-vista="eventos"],body[data-vista="evento"]{background:var(--ve-fundo)}
 .ve-voltar:hover{background:var(--ve-tinta); color:#fff}
 .ve-voltar-txt{display:none}
 @media(min-width:760px){ .ve-voltar{padding:0 16px 0 12px} .ve-voltar-txt{display:inline} }
+
+/* ===================== LISTA: fundo do tipo escolhido (serviços da página inicial) ===================== */
+#view-eventos{overflow-x:clip}
+.vl{position:relative}
+.vl-capa{display:none}
+.vl.com-fundo .vl-capa{display:block; position:absolute; z-index:0; top:0; left:50%; transform:translateX(-50%); width:100vw; height:300px;
+  background-size:cover; background-position:center 35%; background-color:var(--ve-tinta)}
+.vl.com-fundo .vl-capa::after{content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(25,17,12,.55) 0%,rgba(25,17,12,.35) 55%,var(--ve-fundo) 100%)}
+.vl.com-fundo>.vl-topo,.vl.com-fundo>.vl-busca,.vl.com-fundo>.vl-chips{position:relative; z-index:1}
+.vl.com-fundo .vl-topo{height:190px; align-items:start; padding-top:14px}
+.vl.com-fundo .vl-topo .vl-icbtn{color:#fff; background:rgba(255,255,255,.14); backdrop-filter:blur(6px)}
+.vl.com-fundo .vl-topo h1{align-self:center; color:#fff; font-family:'Cormorant Garamond',Georgia,serif; font-weight:500; font-size:clamp(36px,7vw,56px);
+  text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.vl.com-fundo .vl-busca{background:rgba(255,251,246,.92); box-shadow:0 8px 24px rgba(60,35,20,.12)}
+@media(min-width:900px){ .vl.com-fundo .vl-capa{height:380px} .vl.com-fundo .vl-topo{height:250px} }
+
+/* ===================== LISTA: arrumação em telemóvel ===================== */
+.vl-tit{text-align:center; min-width:0}
+.vl-tit p{margin:2px 0 0; font-size:12.5px; color:var(--ve-suave)}
+.vl-tit p:empty{display:none}
+.vl.com-fundo .vl-tit{align-self:center}
+.vl.com-fundo .vl-tit p{color:rgba(255,255,255,.88); text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.vl.com-fundo .vl-topo h1{line-height:1}
+/* chips sobre o fim do fundo: legíveis */
+.vl.com-fundo .vl-chip:not(.on){background:rgba(255,251,246,.85)}
+.vl.com-fundo .vl-chips>.vl-icbtn{background:rgba(255,251,246,.85)}
+/* cartões */
+.vl-card{border-radius:18px}
+.vl-img{aspect-ratio:16/9}
+.vl-corpo{padding:14px 16px 16px}
+.vl-corpo b{font-size:16px}
+/* barra de baixo: pílula flutuante (não ocupa o fundo do ecrã) */
+.vl-nav{left:50%; right:auto; bottom:12px; transform:translateX(-50%); width:max-content; max-width:calc(100% - 24px);
+  border:1px solid var(--ve-linha); border-radius:999px; padding:6px; gap:2px; box-shadow:0 10px 30px rgba(60,35,20,.16)}
+.vl-nav button{padding:6px 14px; border-radius:999px}
+.vl-nav button.on{background:var(--ve-acc); color:#fff}
+.vl-nav .ico{width:19px; height:19px}
+@media(max-width:899px){
+  .vl.com-fundo .vl-capa{height:260px}
+  .vl.com-fundo .vl-topo{height:168px; padding-top:10px}
+  .vl.com-fundo .vl-topo h1{font-size:40px}
+  .vl-grid{gap:14px}
+}

@@ -119,7 +119,7 @@ function partesDoAcesso(e,a){
 function renderTopo(v){
   const e=ev(), area=v==='convidado'||v==='fotografo';
   let h=(area?`<button class="topo-voltar" onclick="voltarArea()" aria-label="Voltar à página do evento">${ico('voltar')}</button>`:'')+
-    `<div class="brand"${area?'':` data-go="${v==='admin'?'admin':'inicio'}" style="cursor:pointer"`}><i></i> Memória</div>`;
+    `<div class="brand"${area?'':` data-go="${v==='admin'?'admin':'inicio'}" style="cursor:pointer"`}>${logoSvg()} Memória</div>`;
   if(v==='admin'){
     const lista=admModo!=='evento';
     h+=`<span class="demo-pill">Organização</span><nav class="nav">

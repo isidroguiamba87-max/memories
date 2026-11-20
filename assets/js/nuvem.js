@@ -139,15 +139,53 @@ async function nvCarregarAcesso(token){
   return true;
 }
 
+/* ---------- upload robusto para o Storage ----------
+   1) fotos grandes são reduzidas no aparelho (máx. 2560 px, JPEG) — envio mais rápido e menos falhas em rede móvel;
+   2) erros passageiros do servidor (5xx, ex.: 520, ou resposta HTML em vez de JSON) são tentados de novo até 3 vezes. */
+const FOTO_MAX_LADO=2560, FOTO_MAX_BYTES=1.5*1024*1024;
+async function nvPrepararFoto(f){
+  if(!f.type||!/^image\/(jpeg|png|webp|heic|heif)$/i.test(f.type)) return f;      // vídeos, gif, etc.: tal como estão
+  try{
+    const bm=await createImageBitmap(f,{imageOrientation:'from-image'});
+    const k=Math.min(1,FOTO_MAX_LADO/Math.max(bm.width,bm.height));
+    if(k===1 && f.size<=FOTO_MAX_BYTES && /jpeg/i.test(f.type)){ bm.close&&bm.close(); return f; }
+    const c=document.createElement('canvas'); c.width=Math.round(bm.width*k); c.height=Math.round(bm.height*k);
+    c.getContext('2d').drawImage(bm,0,0,c.width,c.height); bm.close&&bm.close();
+    const b=await new Promise(ok=>c.toBlob(ok,'image/jpeg',.86));
+    if(!b || b.size>=f.size) return f;
+    return new File([b],(f.name||'foto').replace(/\.[^.]+$/,'')+'.jpg',{type:'image/jpeg'});
+  }catch(e){ return f; }                                                           // formato que o navegador não lê: envia o original
+}
+function erroPassageiro(err){
+  const m=String((err&&(err.message||err.error))||err||''), st=+(err&&(err.statusCode||err.status))||0;
+  return st>=500 || /Unexpected token|<!DOCTYPE|not valid JSON|Failed to fetch|NetworkError|network|timeout|\b5\d\d\b/i.test(m);
+}
+async function nvSubir(path,f){
+  let ultimo;
+  for(let t=1;t<=3;t++){
+    const r=await NUVEM.storage.from('ficheiros').upload(path,f,{contentType:f.type||undefined, upsert:false}).catch(e=>({error:e}));
+    if(!r.error) return path;
+    ultimo=r.error;
+    if(/already exists|Duplicate/i.test(String(ultimo.message||''))) return path;  // a tentativa anterior chegou ao servidor
+    if(!erroPassageiro(ultimo)) break;
+    console.warn('Upload falhou (tentativa '+t+'/3):',ultimo);
+    await new Promise(ok=>setTimeout(ok,1000*t));
+  }
+  throw new Error(erroPassageiro(ultimo)
+    ? 'O servidor de ficheiros não respondeu (erro temporário). Tente de novo dentro de momentos.'
+    : (ultimo.message||String(ultimo)));
+}
+
 /* Envio real: ficheiros para o Storage, depois regista na base de dados. */
 async function nvEnviar(acesso,s,momentoId,missaoId,autor,itens,etiqueta){
   const meta=[];
   for(let i=0;i<itens.length;i++){
-    const f=itens[i].file; if(!f) continue;
+    if(!itens[i].file) continue;
     toast('A enviar '+(i+1)+'/'+itens.length+'…');
+    const f=await nvPrepararFoto(itens[i].file);
     const ext=(f.name.split('.').pop()||'').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||(f.type.startsWith('video')?'mp4':'jpg');
     const path=acesso.token+'/'+s.uid+'/'+crypto.randomUUID()+'.'+ext;
-    chk(await NUVEM.storage.from('ficheiros').upload(path,f,{contentType:f.type||undefined, upsert:false}));
+    await nvSubir(path,f);
     meta.push({path, tipo:f.type.startsWith('video')?'video':'imagem', mime:f.type||null, tamanho:f.size});
   }
   if(!meta.length) throw new Error('Nenhum ficheiro para enviar.');
@@ -159,9 +197,10 @@ async function nvEnviar(acesso,s,momentoId,missaoId,autor,itens,etiqueta){
 
 /* Upload da organização (capas, vídeos) para "admin/<evento>/…" */
 async function nvCarregarAdmin(e,pasta,f){
+  f=await nvPrepararFoto(f);
   const ext=(f.name.split('.').pop()||'').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'bin';
   const path='admin/'+e.uid+'/'+pasta+'/'+crypto.randomUUID()+'.'+ext;
-  chk(await NUVEM.storage.from('ficheiros').upload(path,f,{contentType:f.type||undefined, upsert:false}));
+  await nvSubir(path,f);
   return path;
 }
 

@@ -132,9 +132,12 @@ async function siteCarregar(input){
   for(const f of fs){
     try{
       if(NUVEM){
-        const ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'jpg';
+        /* nvPrepararFoto/nvSubir (nuvem.js): reduz a foto e tenta de novo em erros temporários do Storage */
+        const g=typeof nvPrepararFoto==='function'?await nvPrepararFoto(f):f;
+        const ext=(g.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'jpg';
         const path='admin/site/'+crypto.randomUUID()+'.'+ext;
-        chk(await NUVEM.storage.from('ficheiros').upload(path,f,{contentType:f.type||undefined, upsert:false}));
+        if(typeof nvSubir==='function') await nvSubir(path,g);
+        else chk(await NUVEM.storage.from('ficheiros').upload(path,g,{contentType:g.type||undefined, upsert:false}));
         SITE.vitrine.push({path});
       }else SITE.vitrine.push({src:await pnReduzir(f,1600)});
     }catch(e){ toast('Não foi possível carregar '+f.name+': '+e.message); }

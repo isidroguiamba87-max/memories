@@ -364,3 +364,38 @@ body.sem-scroll{overflow:hidden}
 .lp-texto-legal p{font-size:13.5px; color:#4A3F38; margin:0 0 6px; line-height:1.55}
 .envio-aceito{display:flex; gap:10px; align-items:flex-start; font-size:12.5px; color:var(--ink-soft); margin:4px 0 14px; cursor:pointer}
 .envio-aceito input{width:18px; height:18px; margin-top:1px; flex:0 0 auto; accent-color:var(--gold)}
+
+/* logótipo na versão de computador: o arco escuro segue a cor do texto */
+.lpd-marca .logo-svg.lpd-logo{width:46px; height:26px; color:inherit; fill:none; stroke-width:28}
+
+/* cabeçalho fixo da página inicial (mobile) */
+#view-inicio .lp-topo{position:fixed; top:0; left:50%; right:auto; transform:translateX(-50%); width:min(100%,560px); z-index:60;
+  transition:background-color .3s ease, opacity .25s ease, box-shadow .3s ease, color .3s ease, backdrop-filter .3s ease; padding:14px 20px}
+#view-inicio .lp-topo.solida{background:rgba(247,239,230,.97); box-shadow:0 2px 14px rgba(60,35,20,.12)}
+#view-inicio .lp-topo.solida .lp-marca,#view-inicio .lp-topo.solida .lp-menu-btn{color:#2A211C}
+#view-inicio .lp-topo.a-mexer{opacity:.45; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px)}
+#view-inicio .lp-topo.solida.a-mexer{background:rgba(247,239,230,.55)}
+@media(prefers-reduced-motion:reduce){ #view-inicio .lp-topo{transition:none} }
+
+/* página inicial (telemóvel): eventos em duas colunas, dois por linha */
+#lpCards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 12px; margin-bottom:22px}
+#lpCards .lp-vazio{grid-column:1/-1}
+#lpCards .lp-card{margin:0; min-width:0; display:flex; flex-direction:column}
+#lpCards .lp-card-img{aspect-ratio:1/1; border-radius:14px; box-shadow:0 8px 18px rgba(60,35,20,.11)}
+#lpCards .lp-badge{font-size:9.5px; padding:3px 8px; top:8px; right:8px}
+#lpCards .lp-card-meta{display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:3px 5px; font-size:10.5px; margin:9px 1px 4px; line-height:1.3}
+#lpCards .lp-card-meta .ico{width:12px; height:12px}
+#lpCards .lp-card-meta span{margin-right:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
+#lpCards .lp-card-tit{align-items:flex-start; gap:6px; padding:0 1px}
+#lpCards .lp-card-tit b{font-size:13.5px; line-height:1.3; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden}
+#lpCards .lp-seta{flex:0 0 auto; width:26px; height:26px}
+#lpCards .lp-seta .ico{width:14px; height:14px}
+
+/* serviços (telemóvel): mesma foto de capa da versão de computador */
+.lp-serv.com-foto{position:relative; overflow:hidden; padding:0; aspect-ratio:1/1; display:block; color:#fff; text-align:left; background:var(--lp-escuro)}
+.lp-serv.com-foto img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .5s}
+.lp-serv.com-foto::after{content:''; position:absolute; inset:0; background:linear-gradient(0deg,rgba(30,18,10,.82) 0%,rgba(30,18,10,.35) 55%,rgba(30,18,10,.1) 100%)}
+.lp-serv.com-foto:hover img{transform:scale(1.06)}
+.lp-serv-txt{position:absolute; z-index:1; left:14px; right:12px; bottom:14px; display:flex; flex-direction:column; align-items:flex-start; gap:8px;
+  font-size:14px; font-weight:600; line-height:1.25}
+.lp-serv.com-foto .ico{width:26px; height:26px; stroke-width:1.5}
