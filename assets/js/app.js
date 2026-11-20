@@ -57,9 +57,30 @@ function temaDe(s){return TEMAS[s.tema]||TEMAS[TIPOS[s.tipo].tema]||TEMAS.marfim
 function cor(nome){let s=0;for(const c of nome) s+=c.charCodeAt(0); return CORES[s%CORES.length]}
 function ini(nome){return nome.split(' ').map(p=>p[0]).slice(0,2).join('')}
 const ESTADOS={preparacao:'em preparação', decorrer:'a decorrer', encerrado:'encerrado'};
+/* Data e hora de Maputo (os eventos são em Moçambique, UTC+2), independentemente do fuso do aparelho. */
+function hojeMz(){ try{ return new Date().toLocaleDateString('en-CA',{timeZone:'Africa/Maputo'}); }catch(_){ return new Date(Date.now()+2*36e5).toISOString().slice(0,10); } }
+function horaMz(){ try{ return new Date().toLocaleTimeString('en-GB',{timeZone:'Africa/Maputo',hour:'2-digit',minute:'2-digit',hour12:false}); }catch(_){ return new Date(Date.now()+2*36e5).toISOString().slice(11,16); } }
+/* Estado de uma parte no programa:
+   {fase:'antes'|'hoje-antes'|'decorrer'|'depois'|'sem-data', idx: índice do momento em curso (-1 se nenhum)}
+   Só há momento em curso no próprio dia da parte, a partir da hora do primeiro momento.
+   O momento em curso segue a hora do programa; a organização pode avançá-lo, mas não recuá-lo para antes da hora. */
+function estadoParte(e,s){
+  const est=estadoEv(e), ms=s.momentos||[];
+  if(est==='encerrado') return {fase:'depois', idx:-1};
+  if(!s.data) return {fase:'sem-data', idx:-1};
+  const hoje=hojeMz();
+  if(s.data>hoje) return {fase:'antes', idx:-1};
+  if(s.data<hoje) return {fase:'depois', idx:-1};
+  if(est==='preparacao' && e.estado==='preparacao') return {fase:'hoje-antes', idx:-1};
+  const h=horaMz(), comHora=ms.map((m,i)=>({i,h:m.h})).filter(x=>/^\d{1,2}:\d{2}$/.test(x.h||''));
+  let relogio=-1; comHora.forEach(x=>{ if(x.h.padStart(5,'0')<=h) relogio=Math.max(relogio,x.i); });
+  if(comHora.length && relogio<0) return {fase:'hoje-antes', idx:-1};
+  const manual=ms.findIndex(m=>m.id===s.momento);
+  return {fase:'decorrer', idx:Math.max(relogio, manual, 0)};
+}
 function estadoEv(e){
   if(e.estado && e.estado!=='auto') return e.estado;
-  const hoje=new Date().toISOString().slice(0,10), ds=e.subs.map(s=>s.data).filter(Boolean).sort();
+  const hoje=hojeMz(), ds=e.subs.map(s=>s.data).filter(Boolean).sort();
   if(!ds.length || hoje<ds[0]) return 'preparacao';
   return hoje>ds[ds.length-1] ? 'encerrado' : 'decorrer';
 }
@@ -71,7 +92,7 @@ function dataLonga(d){
 }
 /* Parte "da vez": a de hoje; senão a próxima; depois do evento acabar, a última. */
 function parteDaVez(e){
-  const hoje=new Date().toISOString().slice(0,10);
+  const hoje=hojeMz();
   const ps=e.subs.filter(s=>s.data).slice().sort((a,b)=>a.data.localeCompare(b.data));
   return ps.find(s=>s.data===hoje) || ps.find(s=>s.data>hoje) || ps[ps.length-1] || e.subs[0];
 }
@@ -246,10 +267,10 @@ function renderCountdown(){
 }
 
 function renderPrograma(){
-  const e=ev(), s=sub(), pub=pubDe(e,s), aDecorrer=estadoEv(e)==='decorrer';
-  const iAct=s.momentos.findIndex(m=>m.id===s.momento), passada=estadoEv(e)==='encerrado'||(s.data&&s.data<new Date().toISOString().slice(0,10));
+  const e=ev(), s=sub(), pub=pubDe(e,s), ep=estadoParte(e,s), aDecorrer=ep.fase==='decorrer';
+  const iAct=ep.idx, passada=ep.fase==='depois';
   document.getElementById('prog').innerHTML=s.momentos.length ? s.momentos.map((m,i)=>{
-    const n=pub.filter(x=>x.fase===m.id).length, agora=aDecorrer&&m.id===s.momento, passou=passada||(aDecorrer&&iAct>=0&&i<iAct);
+    const n=pub.filter(x=>x.fase===m.id).length, agora=aDecorrer&&i===iAct, passou=passada||(aDecorrer&&i<iAct);
     return `<li class="${agora?'agora':''} ${passou?'passou':''}">
       <button onclick="setFiltro('${m.id}',true)">
         <span class="ve-hora">${agora?'<em>Em curso</em>':''}${esc(m.h)}</span><i class="ve-ponto"></i>
@@ -257,8 +278,12 @@ function renderPrograma(){
         <span class="ve-mom-n">${n?n+' '+(n===1?'foto':'fotos'):''}</span>
       </button></li>`}).join('')
     : '<li class="ve-vazio-li">O programa ainda não foi publicado.</li>';
-  const m=fase(s.momento);
-  document.getElementById('liveNow').textContent=m.n+(m.h?' · '+m.h:'');
+  const m=aDecorrer?s.momentos[iAct]:fase(s.momento), m0=s.momentos.find(x=>x.h)||{};
+  const txt=document.getElementById('liveTxt');
+  if(txt) txt.textContent=aDecorrer?'A acontecer agora:':ep.fase==='depois'?'Esta parte já terminou.':'Ainda não começou.';
+  document.getElementById('liveNow').textContent=aDecorrer ? m.n+(m.h?' · '+m.h:'')
+    : ep.fase==='antes'||ep.fase==='hoje-antes' ? (s.data?'Começa '+(ep.fase==='hoje-antes'?'hoje':'a '+dataCurta(s.data))+(m0.h?' às '+m0.h:''):'') : '';
+  document.getElementById('liveBar').classList.toggle('parado',!aDecorrer);
   const sel=document.getElementById('liveSel'), podeMudar=!(NUVEM&&!souAdmin);
   sel.innerHTML=s.momentos.map(x=>`<option value="${x.id}">Momento: ${esc(x.n)}</option>`).join('');
   sel.value=s.momento;
@@ -1254,7 +1279,7 @@ async function arrancar(){
           : `<div class="erro-nuvem">Sem ligação à base de dados (${esc(e.message)}). <a href="?demo#inicio">Ver a demonstração</a></div>`);
     }
   } else { carregar(); carregarPedidosLocais(); }
-  setInterval(()=>{ if(vistaActual==='evento') renderCountdown(); },30000);
+  setInterval(()=>{ if(vistaActual==='evento'){ renderCountdown(); try{ renderPrograma(); }catch(_){} } },30000);
   // se a pessoa continua na página inicial, só a actualiza (sem voltar ao topo da página)
   if(cedo && vistaActual==='inicio' && (location.hash.slice(1)||'inicio')==='inicio') renderVista('inicio');
   else await navegar(location.hash.slice(1)||'inicio');

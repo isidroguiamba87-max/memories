@@ -390,3 +390,7 @@ button.mini:hover{background:var(--line)}
 .qr-com-logo{position:relative}
 .qr-logo{position:absolute; inset:0; margin:auto; width:24%; height:24%; border-radius:18%; background:#fff url("../img/logo-gr.svg") center/82% no-repeat;
   box-shadow:0 0 0 3px #fff; pointer-events:none}
+
+/* Faixa "A acontecer agora" fora do dia/hora da parte: sem ponto verde a pulsar */
+.ve-agora.parado{background:#3A3430}
+.ve-agora.parado .dot{background:#9A8F86; animation:none; box-shadow:none}

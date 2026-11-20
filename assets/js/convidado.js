@@ -24,7 +24,7 @@ function renderSeccoesEvento(e,s){
 
 /* ---------- transmissão em directo (faixa no fim do programa) ---------- */
 function renderDirecto(e,s){
-  const live=cvVideosVisiveis(e,s).find(v=>v.tipo==='live'), agora=estadoEv(e)==='decorrer';
+  const live=cvVideosVisiveis(e,s).find(v=>v.tipo==='live'), agora=estadoParte(e,s).fase==='decorrer';
   document.getElementById('evDirecto').innerHTML=live?`<div class="ve-directo">
       <span class="ve-directo-ic">${ico('ao_vivo')}</span>
       <div><b>Transmissão em directo</b><small>${agora?'Acompanhe o evento em tempo real.':'A transmissão fica disponível aqui.'}</small></div>
@@ -40,7 +40,7 @@ function mediaVideo(v){
   return `<a href="${esc(v.src)}" target="_blank" rel="noopener" class="ve-video-link">${ico('play')}<span>${v.tipo==='live'?'Ver em directo':'Ver vídeo'}</span></a>`;
 }
 function rotuloVideo(v,e){
-  return [v.oficial?'Vídeo oficial':'Vídeo', v.tipo==='live'?(estadoEv(e)==='decorrer'?'em directo':'transmissão'):'', v.duracao?'Duração: '+v.duracao:'']
+  return [v.oficial?'Vídeo oficial':'Vídeo', v.tipo==='live'?(e.subs.some(x=>estadoParte(e,x).fase==='decorrer')?'em directo':'transmissão'):'', v.duracao?'Duração: '+v.duracao:'']
     .filter(Boolean).map(esc).join(' · ');
 }
 function renderVideos(e,s){

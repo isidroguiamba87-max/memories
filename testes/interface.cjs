@@ -92,6 +92,25 @@ t.abrirPedido('galeria'); w.document.getElementById('pdNome').value='Robô'; w.d
   t.ir('admin/andre-lucia/lobolo'); t.setEvAba('fotografos');
   ok(w.document.querySelectorAll('.qr-card').length === 2, 'demo: 2 fotógrafos no André & Lúcia');
   ok(!w.document.querySelector('.login'), 'demo: painel sem login');
+  { // programa: "Em curso" só no dia da parte e a partir da hora (hora de Maputo)
+    const hj = w.hojeMz, hr = w.horaMz;
+    const ms = [{id:'a',n:'Pequeno-almoço',h:'06:00'},{id:'b',n:'Preparativos',h:'08:00'},{id:'c',n:'Chegada',h:'09:30'}];
+    const E = (estado, data, momento) => ({estado, subs:[{data, momentos:ms, momento:momento||'a'}]});
+    w.hojeMz = () => '2026-11-20'; w.horaMz = () => '08:15';
+    const ep = (e) => w.estadoParte(e, e.subs[0]);
+    ok(ep(E('decorrer','2026-11-21')).fase === 'antes', 'programa: parte de amanhã não está em curso, mesmo com o evento "a decorrer"');
+    ok(ep(E('decorrer','2026-11-19')).fase === 'depois', 'programa: parte de ontem fica como terminada');
+    const x = ep(E('auto','2026-11-20')); ok(x.fase === 'decorrer' && x.idx === 1, 'programa: no dia, às 08:15, em curso = Preparativos (08:00)');
+    w.horaMz = () => '05:30'; ok(ep(E('auto','2026-11-20')).fase === 'hoje-antes', 'programa: no dia, antes da primeira hora, ainda não começou');
+    w.horaMz = () => '08:15'; ok(ep(E('auto','2026-11-20','c')).idx === 2, 'programa: a organização pode avançar o momento');
+    ok(ep(E('encerrado','2026-11-20')).fase === 'depois', 'programa: evento encerrado não mostra nada em curso');
+    ok(ep(E('preparacao','2026-11-20')).fase === 'hoje-antes', 'programa: estado "em preparação" escolhido à mão impede o "em curso"');
+    // no ecrã: parte futura sem "Em curso" e faixa parada
+    t.ir('evento/nelia-tomas'); const s0 = t.sub(); const dataAntes = s0.data; s0.data = '2026-11-21'; w.renderPrograma();
+    ok(!w.document.querySelector('#prog li.agora') && w.document.getElementById('liveBar').classList.contains('parado') && /Ainda não começou/.test(w.document.getElementById('liveTxt').textContent), 'programa: parte de amanhã sem "Em curso" e faixa "Ainda não começou"');
+    s0.data = '2026-11-20'; w.renderPrograma();
+    ok(w.document.querySelectorAll('#prog li.agora').length === 1 && /A acontecer agora/.test(w.document.getElementById('liveTxt').textContent), 'programa: no dia da parte mostra um único momento em curso');
+    s0.data = dataAntes; w.hojeMz = hj; w.horaMz = hr; }
   ok(w.erros.length === 0, 'demo: sem erros JS ' + w.erros.join(' | '));
 
   // ---------- 2. servidor real (estado actual) ----------
@@ -148,7 +167,7 @@ t.abrirPedido('galeria'); w.document.getElementById('pdNome').value='Robô'; w.d
   ok(s.fotos.length === 1 || s.fotos.length === 2, 'simulado: ficheiros mapeados (' + s.fotos.length + ')');
   s.ir('evento/andre-lucia/lobolo');
   ok(w.document.querySelectorAll('#gal figure').length === 1, 'simulado: galeria mostra só o publicado');
-  ok(w.document.getElementById('liveNow').textContent.includes('Apresentação'), 'simulado: momento actual vem do servidor');
+  ok(w.document.getElementById('liveSel').selectedOptions[0].textContent.includes('Apresentação'), 'simulado: momento actual vem do servidor');
   ok(w.document.getElementById('liveSel').style.display === 'none', 'simulado: público não muda o momento actual');
   ok(w.document.querySelectorAll('#vows .vow').length === 1, 'simulado: mural só com o publicado');
   s.ir('admin'); ok(!!w.document.querySelector('.login'), 'simulado: painel pede login');
