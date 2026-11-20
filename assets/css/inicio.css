@@ -108,23 +108,16 @@ body.sem-scroll{overflow:hidden}
 .lp-ic .ico{width:30px; height:30px; stroke-width:1.4}
 .lp-passos b{display:block; font-size:15px; font-weight:600}
 .lp-passos small{display:block; color:var(--lp-suave); font-size:12.5px; line-height:1.4; margin-top:2px}
-.lp-portatil{margin:30px -10px 0 40px; transform:rotate(-7deg); filter:drop-shadow(0 18px 24px rgba(60,35,20,.25))}
-.lp-ecra{background:#222; border:8px solid #2B2B2B; border-radius:12px 12px 0 0; display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:4px}
-.lp-ecra img{width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:3px}
-.lp-base{height:12px; background:linear-gradient(#C9C9C9,#9A9A9A); border-radius:0 0 14px 14px; margin:0 -14px}
 
 /* galeria */
-.lp-galeria{padding-top:0}
-.lp-slide{position:relative; margin:0 -24px; height:330px; background:#111; overflow:hidden}
-.lp-slide img{width:100%; height:100%; object-fit:cover}
-.lp-cont{position:absolute; right:58px; bottom:16px; color:#fff; font-size:14px; text-shadow:0 1px 6px rgba(0,0,0,.6)}
-.lp-exp{position:absolute; right:14px; bottom:9px; width:36px; height:36px; border-radius:50%; border:1.5px solid rgba(255,255,255,.8); color:#fff; display:grid; place-items:center}
-.lp-exp .ico{width:16px; height:16px}
-.lp-miniaturas{display:flex; gap:6px; margin:0 -24px 30px; padding:8px 12px; background:#fff; overflow-x:auto; scrollbar-width:none}
-.lp-miniaturas::-webkit-scrollbar{display:none}
-.lp-miniaturas button{flex:0 0 52px; height:52px; border-radius:6px; overflow:hidden; opacity:.65; outline:2px solid transparent}
-.lp-miniaturas button.on{opacity:1; outline-color:var(--lp-laranja)}
-.lp-miniaturas img{width:100%; height:100%; object-fit:cover}
+/* portátil + telemóvel (como na versão de computador) */
+.lp-aparelhos{--d-laranja:#B9532A; position:relative; display:flex; justify-content:center; margin:0 -14px 34px; padding:8px 0 22px}
+.lp-aparelhos::after{content:''; position:absolute; left:12%; right:12%; bottom:6px; height:18px; border-radius:50%; background:rgba(60,35,20,.18); filter:blur(8px); z-index:0}
+.lp-aparelhos .lpd-aparelhos{justify-content:center}
+.lp-aparelhos .lpd-portatil{width:min(74vw,330px)}
+.lp-aparelhos .lpd-moldura{box-shadow:0 14px 30px rgba(60,35,20,.28)}
+.lp-aparelhos .lpd-teclado{margin:0 -5vw; box-shadow:0 8px 16px rgba(60,35,20,.22)}
+.lp-aparelhos .lpd-telemovel{width:min(25vw,104px); margin-left:-9vw; border-radius:14px; padding:7px 4px; box-shadow:0 12px 26px rgba(60,35,20,.35)}
 
 /* perguntas */
 .lp-faq details{background:#fff; border-radius:14px; margin-bottom:10px; box-shadow:0 2px 10px rgba(60,35,20,.05)}
@@ -425,8 +418,10 @@ body.sem-scroll{overflow:hidden}
   .lp-grid4{grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px}
   .lp-barra{padding-block:22px}
   .lp-passos{max-width:640px}
-  .lp-portatil{margin:44px auto 0; max-width:560px}
-  .lp-slide{margin:0 -48px; height:520px}
+  .lp-aparelhos{margin:0 0 44px}
+  .lp-aparelhos .lpd-portatil{width:440px}
+  .lp-aparelhos .lpd-teclado{margin:0 -30px}
+  .lp-aparelhos .lpd-telemovel{width:130px; margin-left:-40px}
   .lp-faq{max-width:760px}
   .lp-faq summary{font-size:16px}
   .lp-final{padding:88px 48px 60px}

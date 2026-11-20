@@ -32,7 +32,7 @@ function fundoFiltro(f){
 function nomeServico(f){const s=SERVICOS.find(x=>x[2]===f); return s?s[1]:''}
 const CHAVE_PEDIDOS='memoria.pedidos';
 const CAT_CURTA={uniao:'Casamentos', familia:'Celebrações', corporativo:'Corporativo', homenagem:'Homenagens'};
-let lpCat='todas', lpBusca='', lpSlide=0;
+let lpCat='todas', lpBusca='';
 
 /* ---------- ícones (traço) ---------- */
 /* crédito de quem desenvolveu a plataforma (rodapés do site e da página do evento) */
@@ -96,7 +96,7 @@ function fotosVitrine(){
 
 /* ---------- render ---------- */
 function renderInicio(){
-  const vit=fotosVitrine(); if(lpSlide>=vit.lista.length) lpSlide=0;
+  const vit=fotosVitrine();
   const wa=linkWhats(), c=contacto();
   const sociais=[['instagram','Instagram'],['youtube','YouTube'],['facebook','Facebook']].filter(([k])=>c[k]);
   document.getElementById('view-inicio').innerHTML=`<div class="lpm">
@@ -147,16 +147,10 @@ function renderInicio(){
          ['partilha','Partilhamos o link','Um link para ver, outro para enviar — e downloads incluídos.']]
         .map(([i,t,d],k)=>`<li><span class="lp-num">0${k+1}</span><span class="lp-ic">${ico(i)}</span><div><b>${t}</b><small>${d}</small></div></li>`).join('')}
     </ol>
-    <div class="lp-portatil"><div class="lp-ecra">${vit.lista.slice(0,6).map(f=>imgTag(f.src,'')).join('')}</div><div class="lp-base"></div></div>
   </section>
 
   <section class="lp-sec lp-galeria" id="lp-galeria">
-    <div class="lp-slide">
-      <div id="lpSlideImg">${imgTag(vit.lista[lpSlide].src,'Fotografia da galeria')}</div>
-      <span class="lp-cont" id="lpCont">${lpSlide+1} / ${vit.lista.length}</span>
-      <button class="lp-exp" onclick="lpExpandir()" aria-label="Ver em grande">${ico('expandir')}</button>
-    </div>
-    <div class="lp-miniaturas">${vit.lista.map((f,i)=>`<button class="${i===lpSlide?'on':''}" onclick="lpVerSlide(${i})" aria-label="Ver foto ${i+1}">${imgTag(f.src,'')}</button>`).join('')}</div>
+    <div class="lp-aparelhos">${htmlAparelhos(vit)}</div>
     <div class="lp-eyebrow">Galeria</div>
     <h2>Os momentos do seu evento, um só lugar.</h2>
     <p class="lp-p">Aceda à galeria de forma rápida e partilhe com quem mais importa.</p>
@@ -243,20 +237,6 @@ function lpIr(id){
   const el=document.getElementById(alvo)||document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function lpMenu(abrir){ const g=document.getElementById('lpGaveta'); if(g) g.hidden=!abrir; document.body.classList.toggle('sem-scroll',!!abrir); }
-function lpVerSlide(i){
-  const vit=fotosVitrine(); lpSlide=i;
-  document.getElementById('lpSlideImg').innerHTML=imgTag(vit.lista[i].src,'Fotografia da galeria');
-  document.getElementById('lpCont').textContent=(i+1)+' / '+vit.lista.length;
-  document.querySelectorAll('.lp-miniaturas button').forEach((b,k)=>b.classList.toggle('on',k===i));
-}
-function lpExpandir(){
-  const f=fotosVitrine().lista[lpSlide];
-  if(f.id){ const x=fotos.find(y=>y.id===f.id); if(x){ seleccionar(x.ev,x.sub); return abrirLb(f.id); } }
-  const lb=document.getElementById('lb'), im=document.getElementById('lbI');
-  document.getElementById('lbV').style.display='none'; im.style.display=''; im.src=hi(f.src);
-  document.getElementById('lbT').textContent='Fotografia de demonstração'; document.getElementById('lbS').textContent='';
-  lbFoto=null; lb.classList.add('on');
-}
 
 /* ===================== VERSÃO DE COMPUTADOR (≥ 1000 px) =====================
    Bloco .lpd, desenhado a partir da maquete de desktop. A versão mobile (.lpm) fica igual.
@@ -275,17 +255,21 @@ const RAMO=`<svg viewBox="0 0 120 220" aria-hidden="true"><path d="M60 215C58 16
 <path d="M88 34c-18-4-30 6-32 22 18 3 30-6 32-22zM84 40c14-12 30-12 36-2-12 10-28 10-36 2z"/><path d="M76 74c-20-2-32 10-32 26 20 1 32-10 32-26zM74 78c14-14 32-14 40-4-12 12-30 12-40 4z"/>
 <path d="M66 116c-20 0-30 13-29 29 20 0 30-13 29-29zM66 120c14-13 32-12 39-2-13 11-30 11-39 2z"/><path d="M62 158c-19 1-28 14-26 30 19-1 28-14 26-30zM62 162c13-12 30-10 36 0-12 10-28 9-36 0z"/></svg>`;
 
+/* portátil + telemóvel com a galeria (página inicial no computador e no telemóvel) */
+function htmlAparelhos(vit,cls){
+  const th=vit.lista.map(f=>f.src), t=i=>th[i%th.length];
+  const ecra=(n,c)=>`<div class="${c}">${Array.from({length:n},(_,i)=>imgTag(t(i),'')).join('')}</div>`;
+  return `<div class="lpd-aparelhos ${cls||''}" aria-hidden="true">
+      <div class="lpd-portatil"><div class="lpd-moldura"><div class="lpd-barra-app"><i></i>Memória</div>${ecra(12,'lpd-ecra')}</div><div class="lpd-teclado"></div></div>
+      <div class="lpd-telemovel"><div class="lpd-barra-app"><i></i></div>${ecra(8,'lpd-ecra tel')}</div>
+    </div>`;
+}
+
 function htmlDesktop(vit,wa,c,sociais){
   const fotosEv=e=>fotos.filter(f=>f.ev===e.id&&f.estado==='publicada').length;
   const destaque=eventosLanding().filter(e=>!(e.perm&&e.perm.galeria===false)&&fotosEv(e)>0)
     .sort((a,b)=>fotosEv(b)-fotosEv(a)).slice(0,3);
-  const th=vit.lista.map(f=>f.src);
-  const t=i=>th[i%th.length];
-  const ecra=(n,cls)=>`<div class="${cls}">${Array.from({length:n},(_,i)=>imgTag(t(i),'')).join('')}</div>`;
-  const aparelhos=(cls)=>`<div class="lpd-aparelhos ${cls||''}" aria-hidden="true">
-      <div class="lpd-portatil"><div class="lpd-moldura"><div class="lpd-barra-app"><i></i>Memória</div>${ecra(12,'lpd-ecra')}</div><div class="lpd-teclado"></div></div>
-      <div class="lpd-telemovel"><div class="lpd-barra-app"><i></i></div>${ecra(8,'lpd-ecra tel')}</div>
-    </div>`;
+  const aparelhos=cls=>htmlAparelhos(vit,cls);
   const servicos=SERVICOS;
   const faq=[['O que é uma galeria digital de eventos?','É uma página própria para o seu evento, com o programa e todas as fotografias e vídeos arrumados por momento, para ver, descarregar e partilhar.'],
     ['Posso enviar fotografias do meu telemóvel?','Sim. Pelo link ou QR Code do evento, directamente no telemóvel e sem instalar nada. As fotografias dos convidados aparecem depois de aprovadas pela organização.'],
