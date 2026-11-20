@@ -136,7 +136,7 @@ Legenda: ✅ feito · 🟡 parcial · 🔧 depende de acção externa · ➖ nã
    - https://pagespeed.web.dev/ no domínio (objectivo: 90 ou mais);
    - https://search.google.com/test/rich-results (dados estruturados);
    - abrir o site e o painel com a consola aberta, durante uma semana, e procurar mensagens «Content-Security-Policy».
-8. **Ligar a CSP a sério.** Se não aparecerem avisos, em `vercel.json` troca `Content-Security-Policy-Report-Only` por `Content-Security-Policy`.
+8. **Ligar a CSP a sério.** Se não aparecerem avisos, em `vercel.json` troca `Content-Security-Policy-Report-Only` por `Content-Security-Policy` e acrescenta `; upgrade-insecure-requests` no fim (em Report-Only o navegador ignora esta diretiva e mostra um aviso na consola).
 9. **Google Search Console.** Adiciona a propriedade de prefixo de URL `https://memories-sigma-flax.vercel.app/`, verifica-a pela meta-tag HTML (eu coloco-a no `index.html` se me deres o código), submete `sitemap.xml` e pede a indexação da página inicial. Depois importa a propriedade no **Bing Webmaster Tools**.
 10. **Cópias de segurança.** No plano gratuito do Supabase não há cópias automáticas. Ou passas para o plano Pro (cópias diárias com 7 dias), ou fazes um `pg_dump` semanal com a connection string da base de dados (Settings → Database), guardado fora do Supabase. Uma vez por trimestre, restaura essa cópia num projecto de teste e confirma que abre.
 11. **Monitorização.** Cria um monitor gratuito (UptimeRobot ou Better Stack) para o domínio, com alerta por email. Quando houver domínio próprio, liga também o alerta de expiração do domínio.

@@ -1240,8 +1240,11 @@ async function navegar(h){
   ir(h);
 }
 async function arrancar(){
+  /* Página inicial: desenha-se logo, sem esperar pelo servidor (melhora o LCP); os eventos entram quando chegarem. */
+  const cedo=!!NUVEM && (location.hash.slice(1)||'inicio').split('/')[0]==='inicio';
+  if(cedo){ try{ ir('inicio'); }catch(e){ console.error(e); } }
   if(NUVEM){
-    toast('A ligar ao servidor…');
+    if(!cedo) toast('A ligar ao servidor…');
     try{ await nvSessao(); await nvCarregar(); }
     catch(e){
       console.error(e); EVENTOS=[]; fotos=[];
@@ -1252,7 +1255,9 @@ async function arrancar(){
     }
   } else { carregar(); carregarPedidosLocais(); }
   setInterval(()=>{ if(vistaActual==='evento') renderCountdown(); },30000);
-  await navegar(location.hash.slice(1)||'inicio');
+  // se a pessoa continua na página inicial, só a actualiza (sem voltar ao topo da página)
+  if(cedo && vistaActual==='inicio' && (location.hash.slice(1)||'inicio')==='inicio') renderVista('inicio');
+  else await navegar(location.hash.slice(1)||'inicio');
 }
 arrancar();
 
