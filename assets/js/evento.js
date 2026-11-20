@@ -215,7 +215,8 @@ function renderEvento(){
   pintarGuardado();
   document.getElementById('evFooter').innerHTML=
     `${esc(tituloLongo(e,s))} · ${dataCaps(s.data)}${e.local?' · '+esc(e.local):''}${NUVEM?'':' — página de demonstração'}
-     ${NUVEM?'':'<br><span class="tiny">Fotografias: Adobe Stock (rendições do nível gratuito) e imagens geradas, usadas apenas para demonstração.</span>'}`;
+     ${NUVEM?'':'<br><span class="tiny">Fotografias: Adobe Stock (rendições do nível gratuito) e imagens geradas, usadas apenas para demonstração.</span>'}
+     <br>${htmlCreditoDev()}`;
   renderCountdown(); renderPrograma(); renderParticipantes(); renderFiltros(); renderGaleria();
   renderMissoes(); renderVotos(); renderMaisEventos();
   if(typeof renderSeccoesEvento==='function') renderSeccoesEvento(e,s);

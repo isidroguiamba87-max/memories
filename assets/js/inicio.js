@@ -35,6 +35,10 @@ const CAT_CURTA={uniao:'Casamentos', familia:'Celebrações', corporativo:'Corpo
 let lpCat='todas', lpBusca='', lpSlide=0;
 
 /* ---------- ícones (traço) ---------- */
+/* crédito de quem desenvolveu a plataforma (rodapés do site e da página do evento) */
+const DEV_NOME='JKT Tech';
+function htmlCreditoDev(){ return `<small class="credito-dev">Desenvolvido com <span class="credito-coracao" aria-label="amor">♥</span> pela ${esc(DEV_NOME)}</small>`; }
+
 const IC={
   seta:'<path d="M5 12h14M13 6l6 6-6 6"/>',
   baixo:'<path d="M12 5v14M6 13l6 6 6-6"/>',
@@ -191,6 +195,7 @@ function renderInicio(){
       <small>Galerias digitais para eventos.</small>
       ${sociais.length?`<div class="lp-sociais">${sociais.map(([k,n])=>`<a href="${esc(c[k])}" target="_blank" rel="noopener" aria-label="${n}">${ico(k)}</a>`).join('')}${wa?`<a href="${esc(wa)}" target="_blank" rel="noopener" aria-label="WhatsApp">${ico('whatsapp')}</a>`:''}</div>`:''}
       <button class="lp-org" onclick="abrirPrivacidade()">Privacidade e termos</button>
+      ${htmlCreditoDev()}
       ${NUVEM?'':'<small class="lp-credito">Algumas fotografias de demonstração: Adobe Stock (nível gratuito).</small>'}
     </div>
   </section>
@@ -415,6 +420,7 @@ function htmlDesktop(vit,wa,c,sociais){
     </div>
     <div class="lpd-in lpd-rodape-fim">
       <small>© ${new Date().getFullYear()} Memória. Todos os direitos reservados.${NUVEM?'':' Fotografias de demonstração: Adobe Stock (nível gratuito).'}</small>
+      ${htmlCreditoDev()}
     </div>
   </footer>
 </div>`;

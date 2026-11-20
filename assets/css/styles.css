@@ -397,3 +397,9 @@ button.mini:hover{background:var(--line)}
 
 /* Aviso da organização: galeria escondida do público */
 .ve-aviso-adm{margin:0 0 14px; padding:10px 14px; border-radius:12px; background:#FFF4E5; border:1px solid #F0C98A; color:#5A3A12; font-size:13.5px; line-height:1.45}
+
+/* Crédito de desenvolvimento nos rodapés */
+.credito-dev{display:inline-block; font-size:11.5px; opacity:.8; letter-spacing:.02em}
+.credito-coracao{color:#E0565B; font-style:normal}
+.lp-rodape .credito-dev{margin-top:10px}
+#evFooter .credito-dev{margin-top:8px}
