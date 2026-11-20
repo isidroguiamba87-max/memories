@@ -273,7 +273,13 @@ function renderFiltros(){
   document.getElementById('filters').innerHTML=
     `<button class="chip ${filtro==='todas'?'on':''}" onclick="setFiltro('todas')">Todos os momentos<b>${base.length}</b></button>`+
     s.momentos.map(m=>{const n=base.filter(x=>x.fase===m.id).length;
-      return n||filtro===m.id?`<button class="chip ${filtro===m.id?'on':''}" onclick="setFiltro('${m.id}')">${esc(m.n)}<b>${n}</b></button>`:''}).join('');
+      return n||filtro===m.id?`<button class="chip ${filtro===m.id?'on':''}" onclick="setFiltro('${m.id}')">${esc(m.n)}<b>${n}</b></button>`:''}).join('')+
+    /* telemóvel: os mesmos momentos numa caixa de escolha (nomes completos, sem cortar) */
+    `<label class="filtro-sel"><span>Momento</span><select onchange="setFiltro(this.value)" aria-label="Filtrar a galeria por momento">
+      <option value="todas" ${filtro==='todas'?'selected':''}>Todos os momentos · ${base.length}</option>
+      ${s.momentos.map(m=>{const n=base.filter(x=>x.fase===m.id).length;
+        return n||filtro===m.id?`<option value="${m.id}" ${filtro===m.id?'selected':''}>${m.h?esc(m.h)+' — ':''}${esc(m.n)} · ${n}</option>`:''}).join('')}
+    </select></label>`;
 }
 function setOrigem(o){filtroOrigem=o; filtroPessoa=null; renderFiltros(); renderParticipantes(); renderGaleria()}
 function listaGaleria(){return pubDe(ev(),sub()).filter(f=>passaOrigem(f)&&(filtro==='todas'||f.fase===filtro)&&(!filtroPessoa||f.autor===filtroPessoa))}
