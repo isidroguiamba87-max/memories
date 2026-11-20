@@ -2,7 +2,7 @@
    visualizador, partilha e "Mais eventos". Mobile primeiro. */
 :root{
   --ve-fundo:#F7EFE6; --ve-papel:#FFFBF6; --ve-campo:#F1E4D5; --ve-tinta:#1E1714; --ve-texto:#2A211C;
-  --ve-suave:#6F6259; --ve-linha:#E8D9C7; --ve-laranja:#C8582B; --ve-acc:var(--ve-laranja);
+  --ve-suave:#6F6259; --ve-linha:#E8D9C7; --ve-laranja:#B04A20; --ve-acc:var(--ve-laranja);
   --ve-verde:#1F3324; --ve-verde-claro:#E3EBD3; --ve-verde-txt:#3D5230; --ve-pessego:#F8D9BE; --ve-folha:#A79A62;
   --ve-sombra:0 1px 2px rgba(60,35,20,.05),0 10px 26px rgba(60,35,20,.09);
 }
@@ -19,13 +19,13 @@ body[data-vista="eventos"],body[data-vista="evento"]{background:var(--ve-fundo)}
 .vl-busca .ico{width:19px; height:19px}
 .vl-busca input{flex:1; min-width:0; border:0; background:transparent; font-size:14px; outline:none; color:var(--ve-texto)}
 .vl-busca input::placeholder{color:#9A8C80}
-.vl-busca:focus-within{box-shadow:0 0 0 2px rgba(200,88,43,.35)}
+.vl-busca:focus-within{box-shadow:0 0 0 2px rgba(176,74,32,.35)}
 .vl-chips{display:flex; align-items:center; gap:6px; margin:16px 0 18px}
 .vl-chips-rol{display:flex; gap:6px; overflow-x:auto; flex:1; scrollbar-width:none; padding:2px}
 .vl-chips-rol::-webkit-scrollbar{display:none}
 .vl-chip{padding:8px 15px; border-radius:999px; font-size:12.5px; font-weight:500; white-space:nowrap; color:var(--ve-texto)}
 .vl-chip:hover{background:rgba(0,0,0,.04)}
-.vl-chip.on{background:var(--ve-acc); color:#fff; box-shadow:0 6px 14px rgba(200,88,43,.28)}
+.vl-chip.on{background:var(--ve-acc); color:#fff; box-shadow:0 6px 14px rgba(176,74,32,.28)}
 .vl-grid{display:grid; gap:18px; grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr))}
 .vl-card{display:block; width:100%; text-align:left; background:var(--ve-papel); border-radius:16px; overflow:hidden;
   box-shadow:var(--ve-sombra); transition:transform .2s, box-shadow .2s}
@@ -143,7 +143,7 @@ body[data-vista="eventos"],body[data-vista="evento"]{background:var(--ve-fundo)}
   color:var(--ve-suave); border-radius:12px; min-width:64px}
 .ve-secnav .ico{width:21px; height:21px}
 .ve-secnav button:hover{color:var(--ve-tinta)}
-.ve-secnav button.on{color:var(--ve-acc); background:rgba(200,88,43,.07)}
+.ve-secnav button.on{color:var(--ve-acc); background:rgba(176,74,32,.07)}
 .ve-partes{background:var(--ve-papel); border-bottom:1px solid var(--ve-linha)}
 .ve-partes .partes{max-width:1120px; margin:0 auto; padding:12px 22px}
 .ve-partes .parte{border-radius:14px; background:var(--ve-fundo); border-color:var(--ve-linha); padding:8px 14px}
@@ -161,7 +161,7 @@ body[data-vista="eventos"],body[data-vista="evento"]{background:var(--ve-fundo)}
 .ve-nota-p .ico{width:15px; height:15px; color:var(--ve-acc); flex:0 0 auto}
 .ve-nota-p:empty{display:none}
 .ve-btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; height:46px; padding:0 24px; border-radius:999px;
-  background:var(--ve-acc); color:#fff; font-weight:600; font-size:14px; box-shadow:0 8px 20px rgba(200,88,43,.24); transition:filter .2s, transform .2s}
+  background:var(--ve-acc); color:#fff; font-weight:600; font-size:14px; box-shadow:0 8px 20px rgba(176,74,32,.24); transition:filter .2s, transform .2s}
 .ve-btn:hover{filter:brightness(.93); transform:translateY(-1px)}
 .ve-btn .ico{width:18px; height:18px}
 .ve-btn-linha{display:inline-flex; align-items:center; gap:8px; height:42px; padding:0 18px; border-radius:999px; border:1.5px solid var(--ve-linha);
@@ -181,7 +181,7 @@ body[data-vista="eventos"],body[data-vista="evento"]{background:var(--ve-fundo)}
 .ve-linha::before{content:''; position:absolute; left:91px; top:22px; bottom:22px; width:1.5px; background:var(--ve-linha)}
 .ve-linha li button{display:grid; grid-template-columns:78px 28px 1fr auto; align-items:center; width:100%; text-align:left; padding:13px 0;
   border-radius:12px; color:var(--ve-tinta)}
-.ve-linha li button:hover{background:rgba(200,88,43,.05)}
+.ve-linha li button:hover{background:rgba(176,74,32,.05)}
 .ve-hora{font-size:14px; font-weight:500; display:flex; flex-direction:column; align-items:flex-start; gap:4px; padding-left:6px}
 .ve-hora em{font-style:normal; font-size:10.5px; font-weight:600; color:#fff; background:var(--ve-acc); padding:3px 9px; border-radius:999px; white-space:nowrap}
 .ve-ponto{position:relative; z-index:1; justify-self:center; width:11px; height:11px; border-radius:50%; background:var(--ve-papel); border:2px solid #D9B9A2}
@@ -190,7 +190,7 @@ body[data-vista="eventos"],body[data-vista="evento"]{background:var(--ve-fundo)}
 .ve-mom-n{font-size:11.5px; color:var(--ve-suave); padding:0 8px; white-space:nowrap}
 .ve-linha li.passou .ve-ponto{background:#D9B9A2}
 .ve-linha li.passou .ve-mom b{color:var(--ve-suave)}
-.ve-linha li.agora .ve-ponto{background:var(--ve-acc); border-color:var(--ve-acc); box-shadow:0 0 0 5px rgba(200,88,43,.18)}
+.ve-linha li.agora .ve-ponto{background:var(--ve-acc); border-color:var(--ve-acc); box-shadow:0 0 0 5px rgba(176,74,32,.18)}
 .ve-linha li.agora .ve-mom b{font-weight:600}
 .ve-vazio-li{padding:20px; color:var(--ve-suave); border:1px dashed var(--ve-linha); border-radius:12px}
 .ve-agora{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:16px 0 0; padding:12px 16px; border-radius:14px; background:var(--ve-verde); color:#F2EBDD; font-size:13px}
@@ -206,7 +206,7 @@ body[data-vista="eventos"],body[data-vista="evento"]{background:var(--ve-fundo)}
 .ve-origens{display:inline-flex; gap:4px; background:var(--ve-campo); padding:4px; border-radius:999px; margin-bottom:18px}
 .ve-origens button{padding:8px 16px; border-radius:999px; font-size:13px; font-weight:500; color:var(--ve-texto)}
 .ve-origens button b{font-weight:500; opacity:.55; margin-left:3px; font-size:11.5px}
-.ve-origens button.on{background:var(--ve-acc); color:#fff; box-shadow:0 4px 12px rgba(200,88,43,.28)}
+.ve-origens button.on{background:var(--ve-acc); color:#fff; box-shadow:0 4px 12px rgba(176,74,32,.28)}
 .ve-origens button.on b{opacity:.8}
 #view-evento .filters{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; margin-bottom:14px}
 #view-evento .filters::-webkit-scrollbar{display:none}

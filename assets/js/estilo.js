@@ -13,7 +13,7 @@ const FONTES={
   montserrat:{n:'Montserrat (moderna)',     css:"'Montserrat',system-ui,sans-serif",  g:'Montserrat:wght@500;600'},
   poppins:   {n:'Poppins (arredondada)',    css:"'Poppins',system-ui,sans-serif",     g:'Poppins:wght@500;600'}
 };
-const CORES_EVENTO=[['#C8582B','Laranja'],['#A8824C','Dourado'],['#9E4F36','Terracota'],['#3F5D45','Verde'],
+const CORES_EVENTO=[['#B04A20','Laranja'],['#A8824C','Dourado'],['#9E4F36','Terracota'],['#3F5D45','Verde'],
   ['#2F7F86','Oceano'],['#2D5BB8','Azul'],['#B83F7A','Rosa'],['#6B4A8E','Roxo'],['#1E1714','Preto']];
 
 function carregarFonte(id){
@@ -46,7 +46,7 @@ function htmlEstiloCampos(cor,fonte,alvo){
         ${CORES_EVENTO.map(([h,n])=>`<button type="button" class="es-cor ${c.toLowerCase()===h.toLowerCase()?'on':''}" style="--c:${h}" title="${n}" aria-label="${n}"
           onclick="${set('cor',`'${h}'`)}esEscolherCor(this,'${h}')"></button>`).join('')}
         <label class="es-cor livre ${c&&!CORES_EVENTO.some(([h])=>h.toLowerCase()===c.toLowerCase())?'on':''}" title="Outra cor">
-          <input type="color" value="${c||'#C8582B'}" oninput="${set('cor','this.value')}esEscolherCor(this.parentNode,this.value)"></label>
+          <input type="color" value="${c||'#B04A20'}" oninput="${set('cor','this.value')}esEscolherCor(this.parentNode,this.value)"></label>
       </div>
       <input type="hidden" id="esCor" value="${esc(c)}">
     </div>
@@ -54,13 +54,13 @@ function htmlEstiloCampos(cor,fonte,alvo){
       <select id="esFonte" onchange="${set('fonte','this.value')}esPreverFonte(this.value)">
         ${Object.keys(FONTES).map(k=>`<option value="${k}" ${(fonte||'cormorant')===k?'selected':''}>${FONTES[k].n}</option>`).join('')}
       </select></label>
-    <div class="es-previa" id="esPrevia" style="--c:${c||'#C8582B'};font-family:${(FONTES[fonte]||FONTES.cormorant).css}">Casamento de Nélia &amp; Tomás</div>
+    <div class="es-previa" id="esPrevia" style="--c:${c||'#B04A20'};font-family:${(FONTES[fonte]||FONTES.cormorant).css}">Casamento de Nélia &amp; Tomás</div>
   </div>`;
 }
 function esEscolherCor(el,h){
   const box=el.closest('.es-cores'); box.querySelectorAll('.es-cor').forEach(b=>b.classList.toggle('on',b===el));
   const i=document.getElementById('esCor'); if(i) i.value=h;
-  const p=document.getElementById('esPrevia'); if(p) p.style.setProperty('--c',h||'#C8582B');
+  const p=document.getElementById('esPrevia'); if(p) p.style.setProperty('--c',h||'#B04A20');
 }
 function esPreverFonte(k){ carregarFonte(k); const p=document.getElementById('esPrevia'); if(p) p.style.fontFamily=(FONTES[k]||FONTES.cormorant).css; }
 function esLerCampos(){
