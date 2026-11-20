@@ -160,13 +160,13 @@ function pnDefinicoes(){
    DENTRO DE UM EVENTO
    ===================================================================== */
 const PN_ABAS=[['info','2 · Informações'],['programa','Programa'],['qr','3 · QR Code'],['contrib','4 · Contribuições'],
-  ['videos','5 · Vídeos'],['actividade','6 · Actividade'],['permissoes','7 · Permissões'],['publicar','8 · Publicar'],
+  ['videos','5 · Vídeos'],['slide','Slideshow'],['actividade','6 · Actividade'],['permissoes','7 · Permissões'],['publicar','8 · Publicar'],
   ['fotografos','Fotógrafos'],['alb','Álbum'],['def','Avançado']];
 function pnEvento(){
   const e=ev(), s=sub();
   if(!PN_ABAS.some(([k])=>k===admEvAba)) admEvAba='info';
   const pend=fotos.filter(f=>f.ev===e.id&&f.estado==='pendente').length;
-  const corpo={info:pnInfo, programa:()=>htmlProgramaEd(e,s), qr:pnQR, contrib:()=>pnContribHtml([e],false), videos:pnVideos,
+  const corpo={info:pnInfo, programa:()=>htmlProgramaEd(e,s), qr:pnQR, contrib:()=>pnContribHtml([e],false), videos:pnVideos, slide:pnSlideshow,
     actividade:pnActividade, permissoes:pnPermissoes, publicar:pnPublicar, fotografos:()=>htmlAcessos(e,s,'fotografo'),
     alb:()=>htmlAlbum(e,s), def:()=>htmlDefinicoes(e,s)}[admEvAba]();
   return `<button class="linkback" data-go="admin/eventos">← Eventos</button>
@@ -437,8 +437,11 @@ function pnPermissoes(){
     ${pnTog(e.perm.galeria,"pnPerm('galeria',this.checked)",'Galeria pública','Quem abre a página do evento vê as fotografias publicadas. Desligado: só o programa e a informação.')}
   </div>`;
 }
+/* Desligar a galeria ou os envios pede confirmação (evita esconder a galeria sem querer). */
+const PERM_AVISO={galeria:'Esconder a galeria da página pública? Quem abrir o evento deixa de ver as fotografias.', envios:'Fechar os envios? Os QR Codes de convidados deixam de aceitar fotografias.'};
 function pnPerm(k,on){
   const e=ev();
+  if(!on && PERM_AVISO[k] && typeof confirm==='function'){ let ok=true; try{ ok=confirm(PERM_AVISO[k]); }catch(_){} if(ok===false){ renderAdmin(); return; } }
   if(NUVEM) return naNuvem(()=>nv.upd('eventos',e.uid,{[PERM_COL[k]]:on}),'Permissões actualizadas.');
   e.perm[k]=on; guardar(); renderAdmin(); toast('Permissões actualizadas.');
 }
@@ -448,10 +451,12 @@ function pnPublicar(){
   const e=ev(), s=sub(), url=urlPagina(e,s);
   const checks=[[!!(e.capa||fotos.some(f=>f.ev===e.id)),'Capa do evento'],[!!e.descricao,'Descrição (Sobre o evento)'],
     [e.subs.every(x=>x.momentos.length&&x.data),'Programa e datas de cada parte'],[!!(e.localNome||e.mapa),'Localização'],
-    [(e.acessos||[]).some(a=>a.perfil==='convidado'&&a.ativo),'QR Code de convidados']];
+    [(e.acessos||[]).some(a=>a.perfil==='convidado'&&a.ativo),'QR Code de convidados'],
+    [!(e.perm&&e.perm.galeria===false),'Galeria pública ligada (Permissões)']];
   if(e.publico!==false) return `<div class="card pn-publicado">
       <div class="pn-check">✓</div><h3>Evento publicado com sucesso!</h3>
       <p class="muted small">A página está visível para quem tiver o link${NUVEM&&e.publicadoEm?' desde '+new Date(e.publicadoEm).toLocaleDateString('pt-PT'):''}.</p>
+      ${e.perm&&e.perm.galeria===false?`<p class="ve-aviso-adm" style="margin-top:12px"><b>A galeria está escondida do público.</b> <button class="lp-link-txt" onclick="setEvAba('permissoes')">Ligar em Permissões</button></p>`:''}
       <div class="linkbox"><span id="lk-pub">${esc(url)}</span></div>
       <div class="pn-acts" style="justify-content:center;margin-top:14px">
         <button class="btn" data-go="evento/${e.id}/${s.id}">Ver evento</button>

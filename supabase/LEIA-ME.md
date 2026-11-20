@@ -10,7 +10,7 @@
    catálogo de tipos de evento. No fim mostra uma linha de verificação: 4 · 8 · 12 · 17 · 94 · 36 · 1.
 
    > Se já tinhas corrido a versão anterior, corre só [`CORRER_AGORA.sql`](CORRER_AGORA.sql)
-   > (passo 6 — limites anti-abuso e campo-armadilha nos pedidos).
+   > (passo 8 — slideshow com várias músicas; os passos 6 e 7 estão em [`migrations/`](migrations/)).
 3. Cria o teu utilizador de organização: **Authentication → Users → Add user**
    (email + palavra-passe, com "Auto Confirm User").
 4. Torna-o administrador. No SQL Editor:

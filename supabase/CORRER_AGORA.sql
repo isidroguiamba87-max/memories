@@ -1,114 +1,25 @@
--- Memória — PASSO 6: correr no SQL Editor do Supabase (limites anti-abuso e campo-armadilha nos pedidos).
--- Pode ser corrido mais do que uma vez. No fim deve mostrar: limites = 1, gatilhos = 3, armadilha = 1.
+-- Memória — PASSO 8: correr no SQL Editor do Supabase (slideshow com várias músicas).
+-- Os passos 6 e 7 já foram corridos. Pode ser corrido mais do que uma vez.
+-- No fim deve mostrar: politica_musica = 1.
 
 -- =====================================================================
--- Memória — limitação de pedidos (anti-abuso) e campo-armadilha
---   limites            : contadores por acção + IP (o IP fica só como hash md5) e janela de tempo
---   dentro_do_limite() : conta um pedido e diz se ainda está dentro do limite
---   pedidos            : 5 por hora por IP, 200 por hora no total; campo-armadilha site_web tem de vir vazio
---   ficheiros          : 300 por hora por IP (convidados) / 3000 (fotógrafos)
---   votos (mural)      : 10 mensagens por 10 minutos por IP
---   visitas            : acima de 60 por 10 minutos por IP deixam de contar (sem erro)
--- Os administradores não têm limites. Pode ser corrido mais do que uma vez.
+-- Memória — slideshow com várias músicas
+--   eventos.slideshow.musicas : lista de faixas tocadas pela ordem definida no painel
+--     [ { "tipo": "youtube", "url": "https://youtu.be/…" },
+--       { "tipo": "ficheiro", "path": "admin/<evento>/musica/….mp3", "nome": "…" }, … ]
+--   storage : o público ouve as músicas carregadas para a pasta de música de um evento publicado
+--             (admin/<id do evento>/musica/…). Substitui a política de uma só música.
+-- Pode ser corrido mais do que uma vez.
 -- =====================================================================
 
-create table if not exists public.limites (
-  chave   text        not null,
-  janela  timestamptz not null,
-  n       int         not null default 1,
-  primary key (chave, janela)
-);
-alter table public.limites enable row level security;   -- sem políticas: ninguém lê nem escreve directamente
-revoke all on public.limites from anon, authenticated;
-
--- IP do cliente, tal como o PostgREST o recebe (primeiro valor de X-Forwarded-For)
-create or replace function public.ip_cliente()
-returns text language sql stable set search_path = public as $$
-  select coalesce(nullif(trim(split_part(
-           coalesce(nullif(current_setting('request.headers', true), '')::json->>'x-forwarded-for', ''), ',', 1)), ''),
-         'sem-ip');
-$$;
-
-create or replace function public.dentro_do_limite(p_acao text, p_max int, p_minutos int, p_por_ip boolean default true)
-returns boolean language plpgsql volatile security definer set search_path = public as $$
-declare
-  k text := p_acao || case when p_por_ip then ':' || md5(public.ip_cliente()) else '' end;
-  j timestamptz := date_bin(make_interval(mins => p_minutos), now(), timestamptz '2000-01-01');
-  v int;
-begin
-  insert into public.limites as l (chave, janela) values (k, j)
-  on conflict (chave, janela) do update set n = l.n + 1
-  returning n into v;
-  if random() < 0.02 then delete from public.limites where janela < now() - interval '1 day'; end if;
-  return v <= p_max;
-end $$;
-
-revoke execute on function public.dentro_do_limite(text, int, int, boolean) from public, anon, authenticated;
-revoke execute on function public.ip_cliente() from public, anon, authenticated;
-
--- ---------- pedidos da página inicial ----------
-alter table public.pedidos add column if not exists site_web text;   -- campo-armadilha (invisível para pessoas)
-do $$ begin
-  alter table public.pedidos add constraint pedidos_armadilha check (site_web is null or site_web = '');
-exception when duplicate_object then null; end $$;
-
-create or replace function public.pedidos_limitar()
-returns trigger language plpgsql security definer set search_path = public as $$
-begin
-  if public.e_admin() then return new; end if;
-  if not public.dentro_do_limite('pedido', 5, 60) or not public.dentro_do_limite('pedido-todos', 200, 60, false) then
-    raise exception 'Demasiados pedidos seguidos. Tente de novo dentro de uma hora.' using errcode = 'P0001';
-  end if;
-  return new;
-end $$;
-drop trigger if exists pedidos_limitar on public.pedidos;
-create trigger pedidos_limitar before insert on public.pedidos
-  for each row execute function public.pedidos_limitar();
-
--- ---------- ficheiros enviados por convidados e fotógrafos ----------
-create or replace function public.ficheiros_limitar()
-returns trigger language plpgsql security definer set search_path = public as $$
-declare perfil_ text;
-begin
-  if new.acesso_id is null or public.e_admin() then return new; end if;
-  select perfil into perfil_ from public.acessos where id = new.acesso_id;
-  if not public.dentro_do_limite('envio-' || coalesce(perfil_, 'x'), case when perfil_ = 'fotografo' then 3000 else 300 end, 60) then
-    raise exception 'Muitos ficheiros enviados na última hora. Tente de novo mais tarde.' using errcode = 'P0001';
-  end if;
-  return new;
-end $$;
-drop trigger if exists ficheiros_limitar on public.ficheiros;
-create trigger ficheiros_limitar before insert on public.ficheiros
-  for each row execute function public.ficheiros_limitar();
-
--- ---------- mural de mensagens (votos): 10 por 10 minutos por IP ----------
-create or replace function public.votos_limitar()
-returns trigger language plpgsql security definer set search_path = public as $$
-begin
-  if public.e_admin() then return new; end if;
-  if not public.dentro_do_limite('mensagem', 10, 10) then
-    raise exception 'Muitas mensagens seguidas. Espere uns minutos.' using errcode = 'P0001';
-  end if;
-  return new;
-end $$;
-drop trigger if exists votos_limitar on public.votos;
-create trigger votos_limitar before insert on public.votos
-  for each row execute function public.votos_limitar();
-
--- ---------- visitas (estatística: acima do limite não conta, sem erro) ----------
-create or replace function public.registar_visita(p_evento_id uuid)
-returns void language plpgsql volatile security definer set search_path = public as $$
-begin
-  if not public.dentro_do_limite('visita', 60, 10) then return; end if;
-  insert into public.visitas (evento_id, dia, n)
-  select id, current_date, 1 from public.eventos where id = p_evento_id and publico
-  on conflict (evento_id, dia) do update set n = public.visitas.n + 1;
-end $$;
-grant execute on function public.registar_visita(uuid) to anon, authenticated;
+drop policy if exists "ficheiros: ler musica" on storage.objects;
+create policy "ficheiros: ler musica" on storage.objects for select to anon, authenticated
+  using (bucket_id = 'ficheiros' and name like 'admin/%/musica/%' and exists (
+           select 1 from public.eventos e
+            where e.publico and name like 'admin/' || e.id::text || '/musica/%'));
 
 notify pgrst, 'reload schema';
 
 -- verificação
-select (select count(*) from information_schema.tables where table_schema='public' and table_name='limites') as limites,
-       (select count(*) from pg_trigger where tgname in ('pedidos_limitar','ficheiros_limitar','votos_limitar')) as gatilhos,
-       (select count(*) from information_schema.columns where table_name='pedidos' and column_name='site_web') as armadilha;
+select count(*) as politica_musica from pg_policies
+ where schemaname = 'storage' and tablename = 'objects' and policyname = 'ficheiros: ler musica';

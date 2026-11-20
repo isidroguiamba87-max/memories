@@ -1,0 +1,163 @@
+/* =====================================================================
+   SLIDESHOW DO EVENTO (slideshow.js): secção na página, leitor em ecrã inteiro e editor no painel
+   ===================================================================== */
+
+/* ---------- secção na página do evento ---------- */
+.ss-capa{position:relative; display:block; width:100%; aspect-ratio:16/9; max-height:560px; margin-top:18px; border-radius:22px;
+  overflow:hidden; background:#1B1512; color:#fff; text-align:left; box-shadow:0 18px 40px rgba(40,24,14,.22); cursor:pointer}
+.ss-capa-fotos{position:absolute; inset:0; display:grid; gap:3px}
+.ss-capa-fotos.n2{grid-template-columns:1fr 1fr}
+.ss-capa-fotos.n3{grid-template-columns:2fr 1fr; grid-template-rows:1fr 1fr}
+.ss-capa-fotos.n3 img:first-child{grid-row:1 / 3}
+.ss-capa-fotos img{width:100%; height:100%; object-fit:cover; transition:transform 1.2s ease}
+.ss-capa:hover .ss-capa-fotos img{transform:scale(1.04)}
+.ss-capa::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.72))}
+.ss-capa-play{position:absolute; z-index:1; left:50%; top:50%; transform:translate(-50%,-50%); width:84px; height:84px; border-radius:50%;
+  display:grid; place-items:center; background:rgba(255,255,255,.92); color:var(--ve-acc); box-shadow:0 10px 30px rgba(0,0,0,.35);
+  transition:transform .25s ease}
+.ss-capa-play svg{width:34px; height:34px; margin-left:4px; fill:currentColor; stroke:none}
+.ss-capa:hover .ss-capa-play{transform:translate(-50%,-50%) scale(1.07)}
+.ss-capa-txt{position:absolute; z-index:1; left:22px; right:22px; bottom:18px; display:flex; flex-direction:column; gap:4px}
+.ss-capa-txt b{font-family:var(--ve-serif,"Cormorant Garamond",Georgia,serif); font-size:clamp(24px,3.4vw,34px); font-weight:500; line-height:1.1}
+.ss-capa-txt small{display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:13px; opacity:.88}
+.ss-capa-txt small svg{width:15px; height:15px}
+@media(max-width:640px){
+  .ss-capa{aspect-ratio:4/5; border-radius:18px}
+  .ss-capa-fotos.n3{grid-template-columns:1fr 1fr; grid-template-rows:2fr 1fr}
+  .ss-capa-fotos.n3 img:first-child{grid-row:auto; grid-column:1 / 3}
+  .ss-capa-play{width:68px; height:68px}
+}
+
+/* ---------- leitor ---------- */
+body.ss-aberto{overflow:hidden}
+.ss{position:fixed; inset:0; z-index:200; background:#0B0908; color:#fff; overflow:hidden; cursor:none;
+  font-family:Inter,system-ui,sans-serif; animation:ssAbrir .35s ease}
+.ss.ver{cursor:default}
+@keyframes ssAbrir{from{opacity:0}to{opacity:1}}
+.ss-palco{position:absolute; inset:0; z-index:1}
+.ss-cam{position:absolute; inset:0; overflow:hidden; background:#0B0908}
+.ss-fundo{position:absolute; inset:-40px; width:calc(100% + 80px); height:calc(100% + 80px); object-fit:cover;
+  filter:blur(32px) brightness(.5) saturate(1.1)}
+.ss-foto{position:absolute; inset:0; width:100%; height:100%; object-fit:contain}
+
+/* transições: a camada nova entra por cima da antiga */
+.ss-cam.t-suave:not(.sai), .ss-cam.t-zoom:not(.sai){animation:ssFade 1.3s ease both}
+.ss-cam.t-deslizar:not(.sai){animation:ssDesliza 1.1s cubic-bezier(.22,.8,.24,1) both}
+.ss-cam.t-deslizar.volta:not(.sai){animation-name:ssDeslizaVolta}
+.ss-cam.t-deslizar.sai{animation:ssDeslizaSai 1.1s cubic-bezier(.22,.8,.24,1) both}
+.ss-cam.t-deslizar.volta.sai{animation-name:ssDeslizaSaiVolta}
+.ss-cam.t-cortina:not(.sai){animation:ssCortina 1.3s cubic-bezier(.65,0,.35,1) both}
+.ss-cam.t-cortina.volta:not(.sai){animation-name:ssCortinaVolta}
+.ss-cam.kb0 .ss-foto, .ss-cam.kb0 .ss-fundo{animation:ssKb0 var(--ss-seg,6s) linear both}
+.ss-cam.kb1 .ss-foto, .ss-cam.kb1 .ss-fundo{animation:ssKb1 var(--ss-seg,6s) linear both}
+.ss-cam.parado .ss-foto, .ss-cam.parado .ss-fundo{animation-play-state:paused}
+@keyframes ssFade{from{opacity:0}to{opacity:1}}
+@keyframes ssDesliza{from{transform:translateX(100%)}to{transform:none}}
+@keyframes ssDeslizaVolta{from{transform:translateX(-100%)}to{transform:none}}
+@keyframes ssDeslizaSai{to{transform:translateX(-35%); opacity:.3}}
+@keyframes ssDeslizaSaiVolta{to{transform:translateX(35%); opacity:.3}}
+@keyframes ssCortina{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes ssCortinaVolta{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)}}
+@keyframes ssKb0{from{transform:scale(1)}to{transform:scale(1.09) translate(-1.2%,-.8%)}}
+@keyframes ssKb1{from{transform:scale(1.09) translate(1.2%,.8%)}to{transform:scale(1)}}
+@keyframes ssProg{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* controlos: aparecem ao mexer o rato / tocar no ecrã */
+.ss-topo, .ss-baixo{position:absolute; left:0; right:0; z-index:2; opacity:0; transition:opacity .4s ease; pointer-events:none}
+.ss.ver .ss-topo, .ss.ver .ss-baixo{opacity:1; pointer-events:auto}
+.ss-topo{top:0; display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  padding:max(16px,env(safe-area-inset-top)) 20px 40px; background:linear-gradient(180deg,rgba(0,0,0,.6),transparent)}
+.ss-topo b{display:block; font-family:"Cormorant Garamond",Georgia,serif; font-size:24px; font-weight:500; line-height:1.15}
+.ss-topo small{font-size:12.5px; opacity:.75}
+.ss-baixo{bottom:0; padding:40px 20px max(16px,env(safe-area-inset-bottom)); background:linear-gradient(0deg,rgba(0,0,0,.65),transparent)}
+.ss-barra{height:3px; border-radius:3px; background:rgba(255,255,255,.22); overflow:hidden; margin-bottom:12px}
+.ss-barra i{display:block; height:100%; background:#fff; transform-origin:left; transform:scaleX(0)}
+.ss-ctrl{display:flex; align-items:center; justify-content:center; gap:10px}
+.ss-bt{width:44px; height:44px; flex:0 0 auto; border-radius:50%; display:grid; place-items:center; color:#fff;
+  background:rgba(255,255,255,.14); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); transition:background .2s}
+.ss-bt:hover{background:rgba(255,255,255,.26)}
+.ss-bt:focus-visible{outline:2px solid #fff; outline-offset:2px}
+.ss-bt svg{width:22px; height:22px}
+.ss-bt.grande{width:58px; height:58px; background:#fff; color:#1B1512}
+.ss-bt.grande:hover{background:#F3E8DE}
+.ss-bt.grande svg{width:26px; height:26px}
+.ss-bt.grande svg path[d^="M8 5.5v13"]{fill:currentColor; stroke:none}
+.ss-conta{min-width:64px; text-align:center; font-size:13px; font-variant-numeric:tabular-nums; opacity:.85}
+/* o leitor do YouTube fica escondido por baixo das fotos: só se ouve a música */
+.ss-musica{position:absolute; z-index:0; right:0; bottom:0; width:200px; height:120px; overflow:hidden; opacity:0; pointer-events:none}
+.ss-musica iframe{width:200px; height:120px; border:0}
+
+@media(prefers-reduced-motion:reduce){
+  .ss-cam, .ss-cam .ss-foto, .ss-cam .ss-fundo{animation-duration:.01s !important}
+  .ss-cam:not(.sai){animation:ssFade .6s ease both !important}
+}
+
+/* ---------- editor no painel ---------- */
+.ss-ed-parte{margin-top:16px}
+.ss-ed-parte h4{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 8px; font-size:14px; font-weight:600}
+.ss-ed-parte h4 small{font-weight:400; color:var(--muted)}
+.ss-ed-mini{margin-left:auto; font-size:12.5px; color:var(--accent,#A55C38); font-weight:500; text-decoration:underline; text-underline-offset:3px}
+.ss-ed-grelha{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:8px}
+.ss-ed-foto{position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; background:var(--sand); outline:3px solid transparent;
+  outline-offset:-3px; transition:outline-color .15s, transform .15s}
+.ss-ed-foto img{width:100%; height:100%; object-fit:cover; transition:opacity .15s, filter .15s}
+.ss-ed-foto:not(.on) img{opacity:.72; filter:saturate(.7)}
+.ss-ed-foto.on{outline-color:#A55C38}
+.ss-ed-foto:active{transform:scale(.97)}
+.ss-ed-check{position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%; display:grid; place-items:center;
+  background:rgba(255,255,255,.85); color:transparent; border:1.5px solid rgba(0,0,0,.18)}
+.ss-ed-check svg{width:15px; height:15px}
+.ss-ed-foto.on .ss-ed-check{background:#A55C38; border-color:#A55C38; color:#fff}
+
+.ss-ed-trans{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin:6px 0 16px}
+.ss-ed .ss-ed-trans button{display:flex; flex-direction:column; gap:3px; padding:10px; border-radius:12px; text-align:left;
+  border:1.5px solid var(--line); background:#fff; transition:border-color .15s, box-shadow .15s}
+.ss-ed-trans button.on{border-color:#A55C38; box-shadow:0 0 0 3px rgba(165,92,56,.15)}
+.ss-ed-trans b{font-size:13.5px}
+.ss-ed-trans small{font-size:11.5px; color:var(--muted); line-height:1.35}
+/* pequena animação de exemplo em cada transição */
+.ss-demo{position:relative; display:block; height:58px; border-radius:8px; overflow:hidden; margin-bottom:6px; background:#D9B79C}
+.ss-demo i{position:absolute; inset:0}
+.ss-demo i:first-child{background:linear-gradient(135deg,#C98A63,#7E4A30)}
+.ss-demo i:last-child{background:linear-gradient(135deg,#3F7F86,#1F3F45)}
+.d-suave i:last-child{animation:dFade 3s ease-in-out infinite alternate}
+.d-zoom i{animation:dZoom 3s linear infinite alternate}
+.d-zoom i:last-child{animation:dFade 3s ease-in-out infinite alternate, dZoom 3s linear infinite alternate}
+.d-deslizar i:last-child{animation:dDesliza 3s cubic-bezier(.22,.8,.24,1) infinite}
+.d-cortina i:last-child{animation:dCortina 3s cubic-bezier(.65,0,.35,1) infinite}
+.d-variadas i:last-child{animation:dVar 6s ease-in-out infinite}
+@keyframes dFade{0%,30%{opacity:0}70%,100%{opacity:1}}
+@keyframes dZoom{from{transform:scale(1)}to{transform:scale(1.15)}}
+@keyframes dDesliza{0%,25%{transform:translateX(100%)}60%,100%{transform:none}}
+@keyframes dCortina{0%,25%{clip-path:inset(0 100% 0 0)}65%,100%{clip-path:inset(0 0 0 0)}}
+@keyframes dVar{0%,10%{opacity:0; transform:none}25%,40%{opacity:1}50%{opacity:1; transform:translateX(100%)}65%,80%{transform:none; clip-path:inset(0 100% 0 0)}95%,100%{clip-path:inset(0 0 0 0)}}
+@media(prefers-reduced-motion:reduce){ .ss-demo i{animation:none !important} }
+.ss-ed-fich{display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:10px; background:var(--sand); margin-bottom:10px; font-size:14px}
+.ss-ed-fich svg{width:18px; height:18px; flex:0 0 auto}
+.ss-ed-fich span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+/* lista de músicas (tocam por esta ordem) */
+.ss-faixas{list-style:none; margin:10px 0 14px; padding:0; display:flex; flex-direction:column; gap:6px}
+.ss-faixas li{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:12px; background:#fff; border:1px solid var(--line)}
+.ss-faixa-n{width:22px; text-align:center; font-size:12.5px; font-weight:600; color:var(--muted); font-variant-numeric:tabular-nums}
+.ss-faixa-ic{width:32px; height:32px; flex:0 0 auto; border-radius:9px; display:grid; place-items:center; background:var(--sand); color:#A55C38}
+.ss-faixa-ic.youtube{background:#FCE8E6; color:#C4302B}
+.ss-faixa-ic svg{width:16px; height:16px}
+.ss-faixa-ic.youtube svg path{fill:currentColor; stroke:none}
+.ss-faixa-t{flex:1; min-width:0; display:flex; flex-direction:column}
+.ss-faixa-t b{font-size:13.5px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ss-faixa-t small{font-size:11.5px; color:var(--muted)}
+.ss-faixa-acts{display:flex; gap:4px; flex:0 0 auto}
+.ss-faixa-acts button{width:30px; height:30px; border-radius:8px; display:grid; place-items:center; background:var(--sand); color:var(--ink-soft,#5A4D44)}
+.ss-faixa-acts button:not(:disabled):hover{background:var(--line)}
+.ss-faixa-acts button:disabled{opacity:.35; cursor:default}
+.ss-faixa-acts button svg{width:15px; height:15px}
+.ss-faixa-acts button:not(.tirar) svg{transform:rotate(90deg)}
+.ss-faixa-acts .tirar:hover{background:#FBE3DE; color:#B3261E}
+.ss-add{display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap}
+.ss-add .field{flex:1 1 260px; margin:0}
+.ss-add .btn{margin-bottom:2px}
+
+/* no ecrã do Mural, por cima das missões e das mensagens */
+.ve-ss-mural{margin-bottom:28px}
+.ve-ss-mural .ss-capa{max-height:480px}

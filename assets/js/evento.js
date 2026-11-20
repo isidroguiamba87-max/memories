@@ -193,8 +193,11 @@ function fecharCamada(id){ const m=document.getElementById(id); if(m){ m.classNa
    Programa/galeria/missões/mural são desenhados no app.js; vídeos, partilhar e localização no convidado.js. */
 function renderEvento(){
   const e=ev(), s=sub(); if(!e) return;
-  const t=TIPOS[s.tipo], tema=temaDe(s), semGal=!!(e.perm&&e.perm.galeria===false), pub=semGal?[]:pubDe(e,s);
+  /* Galeria fechada ao público (Permissões): o público não a vê; a organização continua a vê-la, com um aviso. */
+  const galFechada=!!(e.perm&&e.perm.galeria===false), semGal=galFechada&&!souAdmin;
+  const t=TIPOS[s.tipo], tema=temaDe(s), pub=semGal?[]:pubDe(e,s);
   document.getElementById('galeria').style.display=semGal?'none':'';
+  avisoGaleriaFechada(galFechada&&souAdmin);
   document.getElementById('view-evento').style.setProperty('--ve-acc', s.tema==='marfim'||!TEMAS[s.tema] ? '' : tema.gold);
   if(typeof aplicarEstiloEvento==='function') aplicarEstiloEvento(e);   /* cor e tipo de letra do evento (estilo.js) */
   document.getElementById('heroPh').innerHTML=imgTag(capaDe(e,s),esc(e.titulo));
@@ -216,6 +219,7 @@ function renderEvento(){
   renderCountdown(); renderPrograma(); renderParticipantes(); renderFiltros(); renderGaleria();
   renderMissoes(); renderVotos(); renderMaisEventos();
   if(typeof renderSeccoesEvento==='function') renderSeccoesEvento(e,s);
+  if(typeof renderSlideshowSec==='function') renderSlideshowSec(e);
   renderNavEvento();
   if(typeof registarVisita==='function') registarVisita(e);
 }
@@ -290,7 +294,7 @@ function irSeccao(id){
 }
 function solicitarContacto(){ if(typeof abrirPedido==='function') abrirPedido('informacao'); else ir('inicio'); }
 function voltarEventos(){ ir('eventos'); }
-function abrirGaleriaCompleta(){ const e=ev(); if(e.perm&&e.perm.galeria===false) return; const p=pubDe(e,sub()); if(p.length) abrirLb(p[0].id,true); }
+function abrirGaleriaCompleta(){ const e=ev(); if(e.perm&&e.perm.galeria===false&&!souAdmin) return; const p=pubDe(e,sub()); if(p.length) abrirLb(p[0].id,true); }
 /* rascunhos (e.publico===false) não aparecem nas listas públicas */
 function eventosPublicos(){ return EVENTOS.filter(e=>e.publico!==false); }
 
@@ -425,3 +429,12 @@ document.addEventListener('keydown',e=>{
   });
 })();
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ fecharCamada('vlFolha'); fecharCamada('vpPartilha'); } });
+
+/* Aviso só para a organização quando a galeria está escondida do público. */
+function avisoGaleriaFechada(mostrar){
+  const sec=document.getElementById('galeria'); if(!sec) return;
+  let a=document.getElementById('galAvisoAdm');
+  if(!mostrar){ if(a) a.remove(); return; }
+  if(!a){ a=document.createElement('p'); a.id='galAvisoAdm'; a.className='ve-aviso-adm'; sec.insertBefore(a, sec.children[1]||null); }
+  a.innerHTML='<b>Escondida do público.</b> Só a organização vê esta galeria. Para a mostrar: Painel → este evento → Permissões → <b>Galeria pública</b>.';
+}

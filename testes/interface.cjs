@@ -58,6 +58,43 @@ t.abrirPedido('galeria'); w.document.getElementById('pdNome').value='Robô'; w.d
   t.setEvAba('actividade'); ok(w.document.querySelector('.pn-grafico'), 'admin 6: actividade com gráfico');
   t.setEvAba('permissoes'); ok(w.document.querySelectorAll('.pn-perm').length===3, 'admin 7: três permissões');
   t.setEvAba('publicar'); w.pnPublica(true); ok(t.ev().publico===true && w.document.querySelector('.pn-check') && w.document.querySelector('#qr-pagina'), 'admin 8: publicar → sucesso, link e QR');
+  // ---- slideshow (fotos de todo o evento, transição, música do YouTube) ----
+  w.Image = class { set src(v) { this._s = v; setTimeout(() => this.onload && this.onload(), 1); } get src() { return this._s; } };
+  t.ir('admin/nelia-tomas'); t.setEvAba('slide');
+  { const fs_ = w.document.querySelectorAll('.ss-ed-foto');
+    ok(fs_.length > 5 && w.document.querySelectorAll('.ss-ed-trans button').length === 5, 'slideshow: painel lista as fotos do evento e as transições');
+    [0, 2, 4].forEach(i => w.ssEdFoto(fs_[i]));
+    ok(w.document.getElementById('ssEdConta').textContent.startsWith('3 de'), 'slideshow: contador das escolhidas'); }
+  w.ssEdTrans('variadas');
+  for (const u of ['https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=3', 'https://youtu.be/9bZkp7q19f0', 'https://youtu.be/kJQP7kiw5Fk']) { w.document.getElementById('ssYt').value = u; w.ssEdAddYT(); }
+  ok(w.document.querySelectorAll('.ss-faixas li').length === 3, 'slideshow: lista com três músicas do YouTube');
+  w.ssEdMover(2, -1);                                   // a 3.ª sobe para 2.º lugar
+  w.document.getElementById('ssSeg').value = '3';
+  await w.ssGuardar();
+  { const sl = t.ev().slide;
+    ok(sl && sl.fotos.length === 3 && sl.transicao === 'variadas' && sl.segundos === 3 && sl.musicas.map(m => w.ssYoutubeId(m.url)).join() === 'dQw4w9WgXcQ,kJQP7kiw5Fk,9bZkp7q19f0', 'slideshow: guardar configuração e a ordem das músicas'); }
+  t.ir('evento/nelia-tomas/' + t.ev().subs[0].id + '/mural');
+  ok(w.document.querySelector('#mural #slideshow .ss-capa') && !w.document.getElementById('mural').classList.contains('ve-oculta'), 'slideshow: capa no ecrã do Mural');
+  await espera(30); w.abrirSlideshow(); await espera(30);
+  { const fr = w.document.querySelector('#ssMusica iframe');
+    ok(fr && /youtube-nocookie\.com\/embed\/dQw4w9WgXcQ\?autoplay=1&controls=0/.test(fr.src), 'slideshow: 1.ª música do YouTube num leitor escondido (sem repetir sozinha)');
+    const enviadas = []; fr.contentWindow.postMessage = m => enviadas.push(JSON.parse(m));
+    w.ssMensagemYT({ source: fr.contentWindow, data: JSON.stringify({ event: 'onStateChange', info: 0 }) });
+    const carregou = enviadas.find(m => m.func === 'loadVideoById');
+    ok(carregou && carregou.args[0] === 'kJQP7kiw5Fk', 'slideshow: quando a música acaba, toca a seguinte da lista');
+    ok(w.document.getElementById('ssConta').textContent === '1 / 3' && w.document.querySelectorAll('#ssPalco .ss-cam').length === 1, 'slideshow: primeira foto'); }
+  w.ssPasso(1); await espera(30);
+  ok(w.document.getElementById('ssConta').textContent === '2 / 3' && w.document.querySelector('#ssPalco .ss-cam.sai'), 'slideshow: foto seguinte com transição');
+  w.ssPasso(-1); w.ssPasso(-1); await espera(30);
+  ok(w.document.getElementById('ssConta').textContent === '3 / 3', 'slideshow: volta ao fim (repete)');
+  w.ssAlternar(); w.ssSom();
+  ok(w.document.getElementById('ssPlay').getAttribute('aria-label') === 'Continuar' && w.document.getElementById('ssSom').getAttribute('aria-label') === 'Ligar o som', 'slideshow: pausa e sem som');
+  w.fecharSlideshow(); ok(!w.document.getElementById('ss'), 'slideshow: fechar');
+  t.ir('admin/nelia-tomas'); t.setEvAba('slide'); w.document.getElementById('ssYt').value = 'https://exemplo.com/musica'; w.ssEdAddYT();
+  ok(w.document.querySelectorAll('.ss-faixas li').length === 3, 'slideshow: link que não é do YouTube é recusado');
+  w.document.getElementById('ssYt').value = ''; w.ssEdTirar(0); await w.ssGuardar();
+  ok(t.ev().slide.musicas.length === 2 && t.ev().slide.musicas[0].url.endsWith('kJQP7kiw5Fk'), 'slideshow: tirar uma música da lista');
+  ok(w.erros.length === 0, 'slideshow: sem erros JS ' + w.erros.join(' | '));
   t.ir('admin/nelia-tomas'); t.setEvAba('contrib');
   ok(w.document.querySelectorAll('.pn-contrib').length===5, 'admin 4: 5 contribuições pendentes');
   w.aprovar(t.fotos.find(f=>f.estado==='pendente'&&f.ev==='nelia-tomas').id); const rj=t.fotos.find(f=>f.estado==='pendente'&&f.ev==='nelia-tomas').id; w.rejeitar(rj);
@@ -68,7 +105,7 @@ t.abrirPedido('galeria'); w.document.getElementById('pdNome').value='Robô'; w.d
   ok(typeof w.renderSeccoesEvento==='function' && w.erros.length===0, 'convidado: página do evento com as secções sem erros '+w.erros.join(' | '));
   // ---- capas por parte ----
   { const e=t.EVENTOS.find(x=>x.id==='andre-lucia'), [lb,ca]=e.subs; const guard={lb:lb.data, ca:ca.data, cap:e.capa};
-    const hoje=new Date().toISOString().slice(0,10), dia=n=>new Date(Date.now()+n*864e5).toISOString().slice(0,10);
+    const hoje=w.hojeMz(), dia=n=>new Date(Date.parse(hoje+'T12:00:00Z')+n*864e5).toISOString().slice(0,10);
     e.capa='GERAL'; lb.capa='LOBOLO'; ca.capa=null;
     lb.data=dia(-10); ca.data=dia(+20);
     ok(w.capaDe(e)==='LOBOLO', 'capa: próxima parte sem capa → fica a última usada (lobolo)');

@@ -88,9 +88,11 @@ async function nvCarregar(){
 
   const urls=await nvAssinar([...fi.map(f=>f.storage_path), ...vids.map(v=>v.storage_path).filter(Boolean),
                               ...ev.map(e=>e.capa_path).filter(Boolean), ...pa.map(p=>p.capa_path).filter(Boolean),
-                              ...vitrineCfg.map(x=>x.path).filter(Boolean)]);
+                              ...vitrineCfg.map(x=>x.path).filter(Boolean),
+                              ...ev.flatMap(e=>musicasSlide(e.slideshow).map(m=>m.path)).filter(Boolean)]);
   if(typeof SITE!=='undefined')
     SITE.vitrine=vitrineCfg.map(x=>x.foto?{foto:x.foto}:x.path?{path:x.path, src:urls[x.path]||''}:null).filter(Boolean);
+  evs.forEach(e=>musicasSlide(e.slide).forEach(m=>{ if(m.path) m.src=urls[m.path]||''; }));
   evs.forEach(e=>{ if(e.capaPath && urls[e.capaPath]) e.capa=urls[e.capaPath];
     e.subs.forEach(s=>{ if(s.capaPath && urls[s.capaPath]) s.capa=urls[s.capaPath]; }); });
   vids.forEach(v=>{ const e=porUid[v.evento_id]; if(!e) return;
@@ -207,9 +209,11 @@ async function nvCarregarAdmin(e,pasta,f){
 /* Campos de informação e permissões do evento (linha da base de dados → formato do site). */
 function infoEvento(r){
   return {descricao:r.descricao||'', localNome:r.local_nome||'', endereco:r.endereco||'', mapa:r.mapa||'',
-          telefone:r.telefone||'', email:r.email||'', cor:r.cor||'', fonte:r.fonte||'',
+          telefone:r.telefone||'', email:r.email||'', cor:r.cor||'', fonte:r.fonte||'', slide:r.slideshow||null,
           perm:{envios:r.permitir_envios!==false, videos:r.mostrar_videos!==false, galeria:r.galeria_publica!==false}};
 }
+/* músicas do slideshow (lista; "musica" é o formato antigo, com uma só) */
+function musicasSlide(c){ return !c?[]:Array.isArray(c.musicas)?c.musicas:(c.musica?[c.musica]:[]); }
 /* YouTube → URL de iframe; outros links ficam sem embed. */
 function embedVideo(u){
   if(!u) return '';

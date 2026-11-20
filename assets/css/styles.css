@@ -394,3 +394,6 @@ button.mini:hover{background:var(--line)}
 /* Faixa "A acontecer agora" fora do dia/hora da parte: sem ponto verde a pulsar */
 .ve-agora.parado{background:#3A3430}
 .ve-agora.parado .dot{background:#9A8F86; animation:none; box-shadow:none}
+
+/* Aviso da organização: galeria escondida do público */
+.ve-aviso-adm{margin:0 0 14px; padding:10px 14px; border-radius:12px; background:#FFF4E5; border:1px solid #F0C98A; color:#5A3A12; font-size:13.5px; line-height:1.45}
