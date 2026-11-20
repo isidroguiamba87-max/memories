@@ -29,11 +29,11 @@ Não há build, verificação de tipos nem lint, porque o projecto não usa nenh
 |---|---|---|---|---|---|
 | **Antes**: produção, telemóvel | 66 | 88 | 100 | 91 | 4,7 s |
 | **Antes**: produção, computador | 71 | 93 | 100 | 91 | 2,5 s |
-| **Depois**: local, telemóvel | 82 | 95 | 100 | 100 | 4,2 s |
-| **Depois**: local, computador | 69–93* | 93 | 100 | 100 | 1,4–2,8 s |
+| **Depois**: produção, telemóvel | 88–89* | 95 | 100 | 100 | 3,6–3,9 s |
+| **Depois**: produção, computador | 94 | 93 | 100 | 100 | 1,6 s |
 
-\* As medições locais variam muito: o servidor de testes não tem HTTP/2 nem CDN.
-É preciso medir de novo na Vercel depois de publicar (PageSpeed Insights).
+\* Duas medições em 20/11/2026, depois do commit `cb32841`. A primeira medição a seguir à publicação
+deu 63, por a cache da Vercel ainda estar vazia. Confirma também no PageSpeed Insights.
 
 ### Não foi possível fazer no código, e porquê
 - **CSP sem `'unsafe-inline'`:** o site tem ~170 `onclick` escritos no HTML, e um site estático não consegue gerar nonces. A política continua a limitar as origens de scripts, ligações e iframes. Para retirar o `'unsafe-inline'` é preciso passar os handlers para `addEventListener`, uma refactorização grande.
@@ -114,7 +114,7 @@ Legenda: ✅ feito · 🟡 parcial · 🔧 depende de acção externa · ➖ nã
 | B3 validação | 🔧 | Rich Results Test depois de publicar |
 | B4 H1 / hierarquia / semântica / alt | 🟡 | ver nota sobre os dois H1 |
 | B4 blogue | ❌ | decisão editorial |
-| B5 LCP < 2,5 s / CLS < 0,1 | 🟡 | CLS ≈ 0; LCP de computador 1,4 s, de telemóvel ainda ~4 s em teste local |
+| B5 LCP < 2,5 s / CLS < 0,1 | 🟡 | CLS < 0,05; LCP de computador 1,6 s, de telemóvel 3,6–3,9 s |
 | B5 WebP + dimensões + lazy | ✅ | |
 | B5 cache / CDN / compressão | ✅ | Vercel |
 | B6 360/390/414 px, toque ≥ 44 px | 🟡 | testado a 390 px; corpo de texto < 16 px em várias zonas |
@@ -153,4 +153,4 @@ Legenda: ✅ feito · 🟡 parcial · 🔧 depende de acção externa · ➖ nã
 | Ficheiros carregados directamente no Storage sem `registar_envio` não contam para o limite | Baixa | o token é necessário; se houver abuso, revogar o token no painel |
 | Sem auditoria das acções do admin | Baixa (1 admin) | criar uma tabela `auditoria` + gatilhos quando houver mais administradores |
 | Sem Dependabot/CI | Baixa | GitHub → Settings → Code security → Dependabot alerts (um clique) |
-| LCP no telemóvel ~4 s em teste local | Média | medir na Vercel; se continuar acima de 2,5 s, gerar a página inicial em HTML estático (pré-renderizar) |
+| LCP no telemóvel 3,6–3,9 s em produção (objectivo < 2,5 s) | Média | gerar a página inicial em HTML estático (pré-renderizar), para não depender do JavaScript |
