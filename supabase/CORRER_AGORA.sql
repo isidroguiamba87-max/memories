@@ -1,5 +1,5 @@
 -- Memória — PASSO 6: correr no SQL Editor do Supabase (limites anti-abuso e campo-armadilha nos pedidos).
--- Pode ser corrido mais do que uma vez. No fim deve mostrar: limites = 1, gatilhos = 2, armadilha = 1.
+-- Pode ser corrido mais do que uma vez. No fim deve mostrar: limites = 1, gatilhos = 3, armadilha = 1.
 
 -- =====================================================================
 -- Memória — limitação de pedidos (anti-abuso) e campo-armadilha
@@ -7,6 +7,7 @@
 --   dentro_do_limite() : conta um pedido e diz se ainda está dentro do limite
 --   pedidos            : 5 por hora por IP, 200 por hora no total; campo-armadilha site_web tem de vir vazio
 --   ficheiros          : 300 por hora por IP (convidados) / 3000 (fotógrafos)
+--   votos (mural)      : 10 mensagens por 10 minutos por IP
 --   visitas            : acima de 60 por 10 minutos por IP deixam de contar (sem erro)
 -- Os administradores não têm limites. Pode ser corrido mais do que uma vez.
 -- =====================================================================
@@ -80,6 +81,20 @@ drop trigger if exists ficheiros_limitar on public.ficheiros;
 create trigger ficheiros_limitar before insert on public.ficheiros
   for each row execute function public.ficheiros_limitar();
 
+-- ---------- mural de mensagens (votos): 10 por 10 minutos por IP ----------
+create or replace function public.votos_limitar()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if public.e_admin() then return new; end if;
+  if not public.dentro_do_limite('mensagem', 10, 10) then
+    raise exception 'Muitas mensagens seguidas. Espere uns minutos.' using errcode = 'P0001';
+  end if;
+  return new;
+end $$;
+drop trigger if exists votos_limitar on public.votos;
+create trigger votos_limitar before insert on public.votos
+  for each row execute function public.votos_limitar();
+
 -- ---------- visitas (estatística: acima do limite não conta, sem erro) ----------
 create or replace function public.registar_visita(p_evento_id uuid)
 returns void language plpgsql volatile security definer set search_path = public as $$
@@ -95,5 +110,5 @@ notify pgrst, 'reload schema';
 
 -- verificação
 select (select count(*) from information_schema.tables where table_schema='public' and table_name='limites') as limites,
-       (select count(*) from pg_trigger where tgname in ('pedidos_limitar','ficheiros_limitar')) as gatilhos,
+       (select count(*) from pg_trigger where tgname in ('pedidos_limitar','ficheiros_limitar','votos_limitar')) as gatilhos,
        (select count(*) from information_schema.columns where table_name='pedidos' and column_name='site_web') as armadilha;

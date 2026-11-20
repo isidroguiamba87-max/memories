@@ -198,5 +198,6 @@ const antesV = (await q(`select coalesce(sum(n),0)::int n from visitas where eve
 for (let i = 0; i < 65; i++) await comoAnon(() => q(`select registar_visita($1)`, [evPub]));
 const depoisV = (await q(`select coalesce(sum(n),0)::int n from visitas where evento_id=$1`, [evPub]))[0].n;
 if (depoisV - antesV === 60) ok('visitas: só 60 contam em 10 minutos, sem erro'); else { console.log('✗ visitas contadas:', depoisV - antesV); process.exitCode = 1; }
+const partePub = (await q(`select p.id from partes p join eventos e on e.id=p.evento_id where e.publico limit 1`))[0].id;for (let i = 0; i < 10; i++) await comoAnon(() => q(`insert into votos (parte_id, mensagem) values ($1, 'Parabéns!')`, [partePub]));await falha('11.ª mensagem no mural em 10 minutos', () => comoAnon(() => q(`insert into votos (parte_id, mensagem) values ($1, 'spam')`, [partePub])));
 await db.exec(`reset request.headers`);
 console.log(process.exitCode ? '\nHÁ FALHAS' : '\nTUDO OK');
