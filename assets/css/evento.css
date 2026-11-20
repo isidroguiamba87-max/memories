@@ -301,7 +301,8 @@ body[data-vista="eventos"],body[data-vista="evento"]{background:var(--ve-fundo)}
 .lb-nav:hover{background:rgba(255,255,255,.26)}
 .lb-nav.ant{left:12px} .lb-nav.seg{right:12px}
 .lb.uma .lb-nav{display:none}
-@media(hover:none){ .lb-nav{display:none} }
+/* no telemóvel as setas também aparecem (além do deslizar): seguinte/anterior sem fim, volta ao início depois da última */
+@media(hover:none){ .lb-nav{width:40px; height:40px; background:rgba(0,0,0,.38)} .lb-nav.ant{left:8px} .lb-nav.seg{right:8px} }
 .lb-tiras{display:flex; gap:6px; overflow-x:auto; padding:10px 12px; scrollbar-width:none; flex:0 0 auto}
 .lb-tiras:empty{display:none}
 .lb-tiras::-webkit-scrollbar{display:none}

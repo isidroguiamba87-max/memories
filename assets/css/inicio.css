@@ -402,3 +402,33 @@ body.sem-scroll{overflow:hidden}
 
 /* Campo-armadilha anti-robô do formulário de pedidos (fora do ecrã, não só escondido) */
 #pedido .lp-armadilha{position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden}
+
+/* =====================================================================
+   TABLET (561–999 px): a versão mobile ocupa a largura toda, com mais margem,
+   mais colunas e tipografia maior — sem as faixas laterais de "telemóvel".
+   ===================================================================== */
+@media(min-width:561px) and (max-width:999px){
+  body:has(#view-inicio.on){background:var(--lp-creme,#F7EFE6)}
+  #view-inicio{max-width:none; box-shadow:none}
+  #view-inicio .lp-topo{width:100%; padding:20px 40px}
+  .lp-sec{padding:72px 48px 60px}
+  #view-inicio h2{font-size:50px; margin-bottom:26px}
+  .lp-eyebrow{font-size:12.5px}
+  .lp-p{font-size:17px; max-width:58ch}
+  .lp-hero{min-height:min(100svh,1000px)}
+  .lp-hero-txt{padding:0 48px 130px; max-width:700px; gap:18px}
+  .lp-hero h1{font-size:62px}
+  .lp-hero p{font-size:19px}
+  .lp-chips{margin-bottom:24px}
+  #lpCards{gap:28px 22px}
+  .lp-foto-onda{margin:-72px -48px 44px; height:440px}
+  .lp-grid4{grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px}
+  .lp-barra{padding-block:22px}
+  .lp-passos{max-width:640px}
+  .lp-portatil{margin:44px auto 0; max-width:560px}
+  .lp-slide{margin:0 -48px; height:520px}
+  .lp-faq{max-width:760px}
+  .lp-faq summary{font-size:16px}
+  .lp-final{padding:88px 48px 60px}
+  .lp-final p{max-width:56ch}
+}
