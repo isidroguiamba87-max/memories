@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Originais das fotografias (as versões optimizadas estão em assets/img)
+/*.png

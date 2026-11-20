@@ -1,0 +1,6 @@
+# Só o site vai para a Vercel: index.html + assets/
+node_modules
+supabase
+*.md
+/*.png
+package-lock.json

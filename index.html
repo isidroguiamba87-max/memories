@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memória · plataforma de eventos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/inicio.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+<link rel="stylesheet" href="assets/css/evento.css">
+<link rel="stylesheet" href="assets/css/convidado.css">
+<link rel="stylesheet" href="assets/css/estilo.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap" id="topo"></div>
+</header>
+
+<main>
+
+<!-- =============== PÁGINA INICIAL =============== -->
+<div class="view" id="view-inicio"></div>
+
+<!-- =============== CATÁLOGO =============== -->
+<div class="view" id="view-eventos"></div>
+
+<!-- =============== PÁGINA DO EVENTO =============== -->
+<div class="view" id="view-evento">
+
+  <header class="ve-topo">
+    <button class="ve-voltar" onclick="voltarEventos()" aria-label="Voltar a todos os eventos"><span data-ico="voltar"></span><span class="ve-voltar-txt">Eventos</span></button>
+    <button class="ve-marca" data-go="inicio" aria-label="Memória — página inicial"><span class="ve-logo" aria-hidden="true"></span>Memória</button>
+    <nav class="ve-topo-nav">
+      <button data-go="eventos">Eventos</button>
+      <button onclick="irSobre()">Sobre</button>
+      <button onclick="solicitarContacto()">Contacto</button>
+    </nav>
+    <div class="ve-topo-acts">
+      <button class="ve-circ" data-ico="partilha" onclick="abrirPartilha()" aria-label="Partilhar"></button>
+      <button class="ve-circ" id="veGuardar" data-ico="marcador" onclick="alternarGuardado()" aria-label="Guardar evento" aria-pressed="false"></button>
+    </div>
+  </header>
+
+  <!-- 1 · capa -->
+  <section class="ve-hero" id="sobre">
+    <div class="ph" id="heroPh"></div>
+    <div class="ve-hero-in">
+      <span class="ve-pill" id="evEyebrow">—</span>
+      <h1 class="ve-tit" id="evTitulo">—</h1>
+      <div class="ve-meta" id="evMeta"></div>
+      <p class="ve-desc" id="evDesc"></p>
+      <div class="ve-hero-acts">
+        <button class="ve-btn-claro" id="evVerGal" onclick="irSeccao('galeria')"><span data-ico="play"></span>Ver galeria</button>
+        <div class="count" id="count"></div>
+      </div>
+    </div>
+    <svg class="ve-onda" viewBox="0 0 1200 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40C220 80 420 0 640 26S1020 70 1200 22V70H0z"/></svg>
+    <button class="ve-desce" data-ico="baixo" onclick="irSeccao('programa')" aria-label="Descer para o programa"></button>
+  </section>
+
+  <nav class="ve-secnav" id="evNav" aria-label="Secções do evento"></nav>
+  <div class="ve-partes" id="evPartesBar"><div class="partes" id="evPartes"></div></div>
+
+  <!-- 2 · programa -->
+  <section class="ve-sec" id="programa">
+    <div class="ve-dois">
+      <div>
+        <span class="ve-eti">Programa</span>
+        <h2 class="ve-h2" id="progTitulo">Programa do evento</h2>
+        <p class="ve-sub">Acompanhe os momentos mais importantes. Toque num momento para ver as fotografias.</p>
+        <ol class="ve-linha" id="prog"></ol>
+        <p class="ve-agora" id="liveBar"><span class="dot"></span><span>A acontecer agora: <b id="liveNow">—</b></span>
+          <select id="liveSel" title="Momento actual (escolhido pela organização)"></select></p>
+      </div>
+      <div class="ve-prog-foto" id="progFoto"></div>
+    </div>
+    <div id="evDirecto"></div>
+  </section>
+
+  <!-- 3 · galeria -->
+  <section class="ve-sec" id="galeria">
+    <div class="ve-sec-cab">
+      <div>
+        <span class="ve-eti">Galeria</span>
+        <h2 class="ve-h2" id="galTitulo">Momentos inesquecíveis</h2>
+        <p class="ve-sub" id="galCount">—</p>
+      </div>
+      <div class="ve-origens" id="galOrigem"></div>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="people" id="people"></div>
+    <div class="gal ve-gal" id="gal"></div>
+    <div class="ve-gal-acts">
+      <button class="ve-btn-linha" onclick="baixarSeleccao()"><span data-ico="descarregar"></span>Descarregar esta selecção (ZIP)</button>
+      <button class="ve-btn-linha" onclick="baixarAlbum()"><span data-ico="descarregar"></span>Álbum completo (ZIP)</button>
+      <button class="ve-btn" id="galEnviar" onclick="cvPartilharFotos()"><span data-ico="camara"></span>Enviar fotos</button>
+    </div>
+  </section>
+
+  <!-- 4 · vídeos -->
+  <section class="ve-sec" id="videos"></section>
+
+  <!-- 5 · partilhar -->
+  <section class="ve-sec" id="partilhar">
+    <div class="ve-dois igual">
+      <div class="ve-cartao ve-fl-canto" id="evContribuir"></div>
+      <div class="ve-cartao ve-fl-canto" id="evQR"></div>
+    </div>
+  </section>
+
+  <!-- 6 · missões e mural -->
+  <section class="ve-sec" id="mural">
+    <div class="ve-dois igual">
+      <div class="ve-cartao">
+        <span class="ve-eti">Missões de foto</span>
+        <h3 class="ve-h3">Desafios para os convidados</h3>
+        <p class="ve-sub">Cada missão cumprida entra na galeria do momento correspondente.</p>
+        <div id="missions"></div>
+      </div>
+      <div class="ve-cartao">
+        <span class="ve-eti">Mural</span>
+        <h3 class="ve-h3">Deixe uma palavra</h3>
+        <div id="vows" class="ve-vows"></div>
+        <label class="field"><span>A sua mensagem</span><textarea id="vowTxt" placeholder="Que este dia fique para sempre…"></textarea></label>
+        <label class="field"><span>O seu nome</span><input id="vowName" placeholder="Ex.: Tia Carminda"></label>
+        <button class="ve-btn" onclick="addVow()">Publicar no mural</button>
+        <p class="ve-nota-p" id="vowNota"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · localização -->
+  <section class="ve-sec" id="localizacao"></section>
+
+  <div id="evMais"></div>
+  <footer class="wrap" id="evFooter"></footer>
+</div>
+
+<!-- =============== ENVIAR (CONVIDADO) =============== -->
+<div class="view" id="view-convidado">
+  <section class="wrap envio">
+    <div class="eyebrow">Partilhar fotos</div>
+    <h2>Contribua com as suas fotos</h2>
+    <p class="small" id="upEv"></p>
+
+    <div class="card envio-fechado" id="upFechado" hidden>
+      <b>Os envios estão fechados.</b>
+      <p class="muted small">A organização deixou de aceitar fotografias para este evento. Obrigado por participar!</p>
+    </div>
+
+    <div class="card envio-card" id="upForm">
+      <div class="drop envio-drop" id="upDrop" onclick="document.getElementById('upFile').click()">
+        <svg class="ico envio-nuvem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5"/><path d="M12 12v8M9 15l3-3 3 3"/></svg>
+        <div><b>Selecione as suas fotos</b><br><span class="muted small">ou arraste aqui · até 20 de cada vez</span></div>
+      </div>
+      <input type="file" id="upFile" accept="image/*,video/*" multiple hidden>
+      <div class="previews" id="upPrev"></div>
+
+      <div class="field" style="margin-top:18px"><span>Quem está a enviar?</span>
+        <div class="envio-origem" id="upOrigem">
+          <button type="button" data-et="fotografo" onclick="escolherOrigem('fotografo')"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.8"/></svg>Fotógrafo</button>
+          <button type="button" data-et="mc" onclick="escolherOrigem('mc')"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></svg>MC</button>
+          <button type="button" data-et="convidado" onclick="escolherOrigem('convidado')"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M14.5 15a4.3 4.3 0 0 1 6 4"/></svg>Convidado</button>
+        </div>
+      </div>
+      <label class="field"><span>O seu nome</span><input id="upName" placeholder="Como quer aparecer na galeria"></label>
+      <label class="field" id="upSubW"><span>Parte do evento</span><select id="upSub"></select></label>
+      <label class="field"><span>Momento <small class="muted">· sugerido: <b id="sugFase">—</b></small></span><select id="upFase"></select></label>
+      <label class="field"><span>Missão (opcional)</span><select id="upMissao"></select></label>
+      <label class="envio-aceito"><input type="checkbox" id="upAceito"> <span>Confirmo que posso partilhar estas fotografias (tirei-as eu ou tenho autorização das pessoas que aparecem) e aceito os <button type="button" class="lp-link-txt" onclick="abrirPrivacidade()">termos e a política de privacidade</button>.</span></label>
+      <button class="btn envio-btn" id="upBtn" onclick="enviarConvidado()">Enviar fotos</button>
+      <p class="tiny muted" style="text-align:center;margin:10px 0 0">As fotografias aparecem na galeria depois de aprovadas pela organização.</p>
+    </div>
+    <p style="margin-top:18px; text-align:center"><button class="btn ghost sm" id="upVer">Ver o programa e a galeria →</button></p>
+  </section>
+</div>
+
+<!-- =============== FOTÓGRAFO =============== -->
+<div class="view" id="view-fotografo">
+  <section class="wrap" style="max-width:620px">
+    <div class="eyebrow">Página do fotógrafo</div>
+    <h2>Carregamento do fotógrafo</h2>
+    <p class="small" id="fEv"></p>
+    <p class="muted small">Acesso de confiança: o que publicas aqui entra directamente na galeria, sem moderação. <span id="fMeus"></span></p>
+
+    <div class="card" style="padding:20px; margin-top:20px">
+      <label class="field" id="fSubW"><span>Parte do evento</span><select id="fSub"></select></label>
+      <label class="field"><span>Assinatura nas fotos</span><input id="fName"></label>
+      <label class="field"><span>Momento do programa</span><select id="fFase"></select></label>
+      <div class="drop" onclick="document.getElementById('fFile').click()">
+        <div class="big">⇧</div>
+        <div><b>Carregar sessão</b></div>
+        <div class="tiny muted">Publica directamente no momento escolhido</div>
+      </div>
+      <input type="file" id="fFile" accept="image/*,video/*" multiple hidden>
+      <div class="previews" id="fPrev"></div>
+      <div style="display:flex; gap:9px; margin-top:18px; flex-wrap:wrap">
+        <button class="btn" onclick="enviarFotografo()">Publicar</button>
+        <button class="btn ghost" onclick="baixarAlbum()">⇩ Descarregar álbum (ZIP)</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- =============== AVISO (link inválido) =============== -->
+<div class="view" id="view-aviso">
+  <section class="wrap" style="max-width:560px; text-align:center; padding-top:80px">
+    <div class="eyebrow">Link indisponível</div>
+    <h2 style="margin-top:10px">Este link não está activo</h2>
+    <p class="muted" id="avisoTxt"></p>
+    <button class="btn ghost sm" data-go="eventos" style="margin-top:10px">Ver eventos públicos</button>
+  </section>
+</div>
+
+<!-- =============== ADMIN =============== -->
+<div class="view" id="view-admin">
+  <section class="wrap" id="admRoot"></section>
+  <footer class="wrap">Painel de demonstração — os dados são fictícios e ficam guardados só neste navegador.</footer>
+</div>
+
+</main>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Visualizador de fotografias">
+  <div class="lb-topo">
+    <button class="lb-voltar" data-ico="voltar" onclick="fecharLb()">Voltar</button>
+    <span class="lb-cont" id="lbCont"></span>
+    <button class="lb-ic" data-ico="expandir" onclick="lbEcraInteiro()" aria-label="Ecrã inteiro"></button>
+  </div>
+  <div class="stage" id="lbStage">
+    <img id="lbI" alt=""><video id="lbV" controls playsinline style="display:none"></video>
+    <button class="lb-nav ant" data-ico="esq" onclick="lbPasso(-1)" aria-label="Anterior"></button>
+    <button class="lb-nav seg" data-ico="dir" onclick="lbPasso(1)" aria-label="Seguinte"></button>
+  </div>
+  <div class="lb-tiras" id="lbTiras"></div>
+  <div class="lb-rodape">
+    <div><div class="lb-tit" id="lbT"></div><div class="lb-sub" id="lbS"></div></div>
+    <button class="lb-ic" data-ico="descarregar" onclick="baixarFoto(lbFoto)" aria-label="Descarregar"></button>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/dados.js"></script>
+<script src="assets/js/nuvem.js"></script>
+<script src="assets/js/inicio.js"></script>
+<script src="assets/js/evento.js"></script>
+<script src="assets/js/convidado.js"></script>
+<script src="assets/js/estilo.js"></script>
+<script src="assets/js/admin.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+// Uso: node supabase/gerar_catalogo.js > supabase/migrations/20261119120100_catalogo.sql
+// Gera o SQL do catálogo (categorias, temas, tipos, modelos) a partir de assets/js/dados.js
+const fs = require('fs'), vm = require('vm'), path = require('path');
+const raiz = process.argv[2] || path.join(__dirname, "..");
+const ctx = {};
+vm.createContext(ctx);
+vm.runInContext(fs.readFileSync(path.join(raiz, 'assets/js/dados.js'), 'utf8') +
+  '\n;this.__d={CATEGORIAS,TEMAS,TIPOS};', ctx);
+const { CATEGORIAS, TEMAS, TIPOS } = ctx.__d;
+const q = v => v == null || v === '' ? 'null' : "'" + String(v).replace(/'/g, "''") + "'";
+const L = [];
+L.push('-- =====================================================================');
+L.push('-- Memória — catálogo inicial: categorias, temas, tipos de evento e modelos');
+L.push('-- Gerado a partir de assets/js/dados.js. Pode ser corrido mais do que uma vez.');
+L.push('-- =====================================================================', '');
+L.push('insert into public.categorias (id, nome, icone, descricao, ordem) values');
+L.push(CATEGORIAS.map((c, i) => `  (${q(c.id)}, ${q(c.n)}, ${q(c.ic)}, ${q(c.d)}, ${i})`).join(',\n'));
+L.push('on conflict (id) do update set nome = excluded.nome, icone = excluded.icone, descricao = excluded.descricao, ordem = excluded.ordem;', '');
+L.push('insert into public.temas (id, nome, cor_destaque, cor_secundaria, cor_fundo, cor_areia, cor_linha) values');
+L.push(Object.entries(TEMAS).map(([k, t]) => `  (${q(k)}, ${q(t.n)}, ${q(t.gold)}, ${q(t.terra)}, ${q(t.ivory)}, ${q(t.sand)}, ${q(t.line)})`).join(',\n'));
+L.push('on conflict (id) do update set nome = excluded.nome, cor_destaque = excluded.cor_destaque, cor_secundaria = excluded.cor_secundaria,');
+L.push('  cor_fundo = excluded.cor_fundo, cor_areia = excluded.cor_areia, cor_linha = excluded.cor_linha;', '');
+L.push('insert into public.tipos_evento (id, categoria_id, nome, icone, descricao, tema_id, ordem) values');
+L.push(Object.entries(TIPOS).map(([k, t], i) => `  (${q(k)}, ${q(t.cat)}, ${q(t.n)}, ${q(t.ic)}, ${q(t.d)}, ${q(t.tema)}, ${i})`).join(',\n'));
+L.push('on conflict (id) do update set categoria_id = excluded.categoria_id, nome = excluded.nome, icone = excluded.icone,');
+L.push('  descricao = excluded.descricao, tema_id = excluded.tema_id, ordem = excluded.ordem;', '');
+const mods=[], moms=[], miss=[];
+for (const [k, t] of Object.entries(TIPOS)) t.modelos.forEach((m, i) => {
+  mods.push(`  (${q(k)}, ${q(m.id)}, ${q(m.n)}, ${i})`);
+  let ult = "";
+  m.m.forEach((x, j) => { ult = x[2] || ult; moms.push(`  (${q(k)}, ${q(m.id)}, ${j + 1}, ${q(x[0])}, ${q(x[1])}, ${q(ult)})`); });
+  (m.mis || []).forEach((x, j) => miss.push(`  (${q(k)}, ${q(m.id)}, ${j + 1}, ${q(x[0])}, ${q(x[1])}, ${x[2] + 1})`));
+});
+L.push("insert into public.modelos (tipo_id, codigo, nome, ordem) values");
+L.push(mods.join(",\n"));
+L.push("on conflict (tipo_id, codigo) do update set nome = excluded.nome, ordem = excluded.ordem;", "");
+L.push("-- momentos e missões dos modelos: substitui os existentes");
+L.push("delete from public.modelo_momentos;");
+L.push("delete from public.modelo_missoes;", "");
+L.push("insert into public.modelo_momentos (modelo_id, ordem, hora, nome, local)");
+L.push("select m.id, v.ordem, v.hora::time, v.nome, v.local from (values");
+L.push(moms.join(",\n"));
+L.push(") as v(tipo, codigo, ordem, hora, nome, local)");
+L.push("join public.modelos m on m.tipo_id = v.tipo and m.codigo = v.codigo;", "");
+L.push("insert into public.modelo_missoes (modelo_id, ordem, icone, titulo, momento_ordem)");
+L.push("select m.id, v.ordem, v.icone, v.titulo, v.momento_ordem from (values");
+L.push(miss.join(",\n"));
+L.push(") as v(tipo, codigo, ordem, icone, titulo, momento_ordem)");
+L.push("join public.modelos m on m.tipo_id = v.tipo and m.codigo = v.codigo;", "");
+process.stdout.write(L.join('\n'));

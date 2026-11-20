@@ -1,0 +1,13 @@
+{
+  "name": "memoria-eventos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Memória — protótipo estático da plataforma de memórias de evento",
+  "scripts": {
+    "start": "serve . -l 8000",
+    "dev": "serve . -l 8000"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}

@@ -1,0 +1,48 @@
+/* Personalização: cor e tipo de letra do evento · escolha de fotos da página inicial */
+
+/* ---------- página do evento ---------- */
+#view-evento .ve-tit,#view-evento .ve-h2,#view-evento .ve-h3,#view-evento .ve-mais h2,#view-evento .ve-cta h3{
+  font-family:var(--ve-fonte,'Cormorant Garamond',Georgia,serif)}
+/* etiquetas e realces seguem a cor do evento */
+#view-evento .ve-eti{background:color-mix(in srgb,var(--ve-acc) 15%,#fff); color:color-mix(in srgb,var(--ve-acc) 78%,#000)}
+#view-evento .ve-secnav button.on{background:color-mix(in srgb,var(--ve-acc) 9%,transparent)}
+/* letras sem serifa ou manuscritas: acertos de tamanho e peso */
+#view-evento[data-fonte="montserrat"] .ve-tit,#view-evento[data-fonte="poppins"] .ve-tit{font-size:clamp(32px,8vw,64px); font-weight:600; letter-spacing:-.02em}
+#view-evento[data-fonte="montserrat"] .ve-h2,#view-evento[data-fonte="poppins"] .ve-h2{font-weight:600; letter-spacing:-.015em; font-size:clamp(26px,5.6vw,36px)}
+#view-evento[data-fonte="greatvibes"] .ve-tit{font-size:clamp(46px,12vw,96px); font-weight:400; line-height:1.1}
+#view-evento[data-fonte="greatvibes"] .ve-h2{font-size:clamp(36px,8vw,52px); font-weight:400}
+#view-evento[data-fonte="dmserif"] .ve-tit,#view-evento[data-fonte="dmserif"] .ve-h2{font-weight:400}
+
+/* ---------- campos no painel (criar evento / Informações) ---------- */
+.es-campos{display:grid; gap:4px; margin:6px 0 12px}
+.es-cores{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.es-cor{width:34px; height:34px; border-radius:50%; background:var(--c); border:2px solid #fff; box-shadow:0 0 0 1px var(--line); cursor:pointer; position:relative; padding:0}
+.es-cor.on{box-shadow:0 0 0 2px var(--ink)}
+.es-cor.on::after{content:'✓'; position:absolute; inset:0; display:grid; place-items:center; color:#fff; font-size:14px; font-weight:700}
+.es-cor.auto{width:auto; padding:0 12px; border-radius:999px; background:var(--paper); font-size:12px; font-weight:600; color:var(--ink-soft)}
+.es-cor.auto.on::after{content:none}
+.es-cor.livre{background:conic-gradient(#e44,#ec4,#4c6,#4ad,#64e,#e4a,#e44); overflow:hidden}
+.es-cor.livre input{position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%}
+.es-previa{margin-top:6px; padding:14px 18px; border-radius:12px; background:var(--paper); border:1px solid var(--line);
+  font-size:28px; line-height:1.1; color:var(--ink); border-left:5px solid var(--c)}
+
+/* ---------- secção "Página inicial" ---------- */
+.es-cab{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 14px; margin-bottom:12px}
+.es-escolhidas{display:grid; gap:10px; grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+.es-esc{position:relative; border-radius:12px; overflow:hidden; aspect-ratio:4/3; background:var(--sand)}
+.es-esc img{width:100%; height:100%; object-fit:cover}
+.es-n{position:absolute; top:8px; left:8px; width:24px; height:24px; border-radius:50%; background:var(--ink); color:#fff; font-size:12px; font-weight:600; display:grid; place-items:center}
+.es-esc-acts{position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:center; gap:6px; padding:8px;
+  background:linear-gradient(transparent,rgba(0,0,0,.6))}
+.es-esc-acts button{width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.92); font-size:13px; padding:0}
+.es-esc-acts button:disabled{opacity:.35; cursor:default}
+.es-acts{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+.es-acts label.btn{cursor:pointer}
+.es-grelha{display:grid; gap:8px; grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+.es-foto{position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; padding:0; background:var(--sand); outline:3px solid transparent; outline-offset:-3px}
+.es-foto img{width:100%; height:100%; object-fit:cover; transition:transform .3s}
+.es-foto:hover img{transform:scale(1.05)}
+.es-foto i{position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,.92); color:var(--ink);
+  font-style:normal; font-weight:700; font-size:14px; display:grid; place-items:center}
+.es-foto.on{outline-color:var(--ink)}
+.es-foto.on i{background:var(--ink); color:#fff}

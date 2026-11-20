@@ -1,0 +1,87 @@
+/* =====================================================================
+   SECÇÕES DO CONVIDADO NA PÁGINA DO EVENTO (convidado.js) — mobile primeiro
+   transmissão em directo · vídeos · enviar fotos · QR Code · localização
+   ===================================================================== */
+
+/* ---------- transmissão em directo (fim do programa) ---------- */
+.ve-directo{display:flex; flex-wrap:wrap; align-items:center; gap:12px 16px; margin:24px 0 0; padding:16px 18px; border-radius:18px; color:#fff;
+  background:linear-gradient(110deg,#211A16 0%,#4A2A1C 55%,#8E3F1E 100%); box-shadow:var(--ve-sombra)}
+.ve-directo-ic{width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,.12); display:grid; place-items:center; flex:0 0 auto}
+.ve-directo-ic .ico{width:24px; height:24px}
+.ve-directo>div{flex:1; min-width:160px}
+.ve-directo b{display:block; font-size:15px; font-weight:600}
+.ve-directo small{display:block; font-size:12px; opacity:.8; margin-top:2px}
+.ve-aovivo{font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; background:#D9342B; padding:4px 9px; border-radius:6px}
+.ve-directo .ve-btn{height:42px}
+
+/* ---------- vídeos ---------- */
+.ve-videos{display:grid; gap:16px}
+.ve-video{background:var(--ve-papel); border-radius:18px; overflow:hidden; box-shadow:var(--ve-sombra)}
+.ve-video-media{position:relative; aspect-ratio:16/9; background:#140F0C}
+.ve-video-media iframe,.ve-video-media video{position:absolute; inset:0; width:100%; height:100%; border:0; display:block}
+.ve-video-selo{position:absolute; top:12px; right:12px; font-size:11px; font-weight:600; color:#fff; background:rgba(0,0,0,.5); padding:4px 10px; border-radius:999px; pointer-events:none}
+.ve-video-link{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:#fff; font-size:13.5px; font-weight:500;
+  background:radial-gradient(circle at 50% 45%,#4A2A1C,#140F0C 75%); text-decoration:none}
+.ve-video-link .ico{width:30px; height:30px; padding:16px; box-sizing:content-box; border-radius:50%; background:rgba(255,255,255,.16); fill:currentColor}
+.ve-video-link:hover .ico{background:var(--ve-acc)}
+.ve-video-txt{padding:12px 16px 14px}
+.ve-video-txt b{display:block; font-size:14.5px; font-weight:600; color:var(--ve-tinta)}
+.ve-video-txt small{display:block; font-size:12px; color:var(--ve-suave); margin-top:3px}
+.ve-videos-lista{display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
+@media(min-width:900px){
+  .ve-videos{grid-template-columns:1.6fr 1fr; align-items:start}
+  .ve-videos.so-um{grid-template-columns:minmax(0,820px)}
+  .ve-videos-lista{grid-template-columns:1fr}
+}
+
+/* ---------- enviar fotos ---------- */
+.ve-drop{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; width:100%; min-height:170px; margin:4px 0 16px;
+  padding:22px; border:1.5px dashed #DDBFA8; border-radius:16px; background:var(--ve-fundo); color:var(--ve-tinta); text-align:center; transition:.2s}
+.ve-drop:hover{border-color:var(--ve-acc); background:#FBF1E8}
+.ve-drop .ico{width:38px; height:38px; color:var(--ve-acc); stroke-width:1.4}
+.ve-drop b{font-size:15px; font-weight:500}
+.ve-drop small{font-size:12px; color:var(--ve-suave)}
+.ve-drop.off{opacity:.7; cursor:default}
+.ve-drop.off .ico{color:var(--ve-suave)}
+#evContribuir>.ve-btn{width:100%}
+
+/* ---------- QR Code ---------- */
+.ve-qr-grelha{display:grid; gap:18px; align-items:start}
+.ve-qr{justify-self:center; padding:14px; background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(60,35,20,.08); line-height:0}
+.ve-qr img,.ve-qr canvas{width:180px; height:180px}
+.ve-qr-det{background:var(--ve-fundo); border-radius:16px; padding:14px 16px}
+.ve-qr-det>b{display:block; font-size:13.5px; font-weight:600; margin-bottom:4px; color:var(--ve-tinta)}
+.ve-qr-linha{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-top:1px solid var(--ve-linha); font-size:13px}
+.ve-qr-linha:first-of-type{border-top:0}
+.ve-qr-linha>button{display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border-radius:999px; background:var(--ve-papel); border:1px solid var(--ve-linha);
+  font-size:12px; font-weight:500; color:var(--ve-tinta); white-space:nowrap}
+.ve-qr-linha>button:hover{border-color:var(--ve-acc); color:var(--ve-acc)}
+.ve-qr-linha .ico{width:14px; height:14px}
+.ve-redes{display:flex; gap:6px}
+.ve-redes a,.ve-redes button{width:32px; height:32px; border-radius:50%; display:grid; place-items:center; color:var(--ve-tinta); background:var(--ve-papel); border:1px solid var(--ve-linha); transition:.2s}
+.ve-redes a:hover,.ve-redes button:hover{background:var(--ve-acc); border-color:var(--ve-acc); color:#fff}
+.ve-redes .ico{width:15px; height:15px}
+.ve-qr-nota{display:flex; align-items:flex-start; gap:8px; margin:16px 0 0; padding:10px 14px; border-radius:12px; background:var(--ve-fundo); font-size:12px; color:var(--ve-suave)}
+.ve-qr-nota .ico{width:16px; height:16px; flex:0 0 auto; margin-top:1px}
+@media(min-width:560px){ .ve-qr-grelha{grid-template-columns:auto 1fr} }
+
+/* ---------- localização ---------- */
+.ve-local{display:flex; gap:12px; align-items:flex-start; margin:10px 0 16px}
+.ve-local>.ico{width:22px; height:22px; color:var(--ve-acc); flex:0 0 auto; margin-top:2px}
+.ve-local b{display:block; font-size:16px; font-weight:500; color:var(--ve-tinta)}
+.ve-local small{display:block; font-size:12.5px; color:var(--ve-suave); margin-top:2px}
+.ve-btn-suave{display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:999px; background:var(--ve-eti); color:#8E3F1E; font-size:13px; font-weight:600; text-decoration:none}
+.ve-btn-suave:hover{background:#F0CDB5}
+.ve-btn-suave .ico{width:16px; height:16px}
+.ve-info{display:grid; gap:18px; margin-top:28px; padding-top:22px; border-top:1px solid var(--ve-linha)}
+.ve-info h3{font-family:Inter,system-ui,sans-serif; font-size:13.5px; font-weight:600; margin:0 0 10px; color:var(--ve-tinta)}
+.ve-info a{display:flex; align-items:center; gap:10px; padding:5px 0; font-size:13px; color:var(--ve-texto); text-decoration:none}
+.ve-info a:hover{color:var(--ve-acc)}
+.ve-info .ico{width:16px; height:16px; color:var(--ve-acc); flex:0 0 auto}
+.ve-info .ve-nota-p{justify-content:flex-start; text-align:left; margin:0}
+.ve-info-l{display:flex; gap:10px; align-items:flex-start; margin:0 0 9px; font-size:13px}
+.ve-info-l .ico{margin-top:2px}
+.ve-info-l small{display:block; font-size:11.5px; color:var(--ve-suave)}
+.ve-mapa{border-radius:20px; overflow:hidden; box-shadow:var(--ve-sombra); background:var(--ve-campo); aspect-ratio:4/3}
+.ve-mapa iframe{width:100%; height:100%; border:0; display:block}
+@media(min-width:620px){ .ve-info{grid-template-columns:1fr 1fr} }
