@@ -437,6 +437,7 @@ function abrirPedido(tipo){
     <button type="button" class="lp-menu-btn" onclick="fecharPedido()" aria-label="Fechar">${ico('fechar')}</button>
     <div class="lp-eyebrow">${foto?'Para fotógrafos':'Pedido'}</div>
     <h2>${t}</h2><p class="lp-p">${d}</p>
+    <div class="lp-armadilha" aria-hidden="true"><label>Não preencher <input id="pdSiteWeb" tabindex="-1" autocomplete="off"></label></div>
     <label class="field"><span>Nome${foto?' / estúdio':''}</span><input id="pdNome" required maxlength="120" autocomplete="name"></label>
     <label class="field"><span>Telefone, WhatsApp ou email</span><input id="pdContacto" required maxlength="160" autocomplete="tel"></label>
     ${tipo==='galeria'?`<div class="grid-f">
@@ -454,10 +455,16 @@ async function enviarPedido(tipo){
   const p={tipo, nome:val('pdNome'), contacto:val('pdContacto'), tipo_evento:val('pdTipo')||null,
            data_evento:val('pdData')||null, mensagem:val('pdMsg')||null};
   if(!p.nome||p.contacto.length<3){toast('Preenche o nome e um contacto.');return}
+  const armadilha=val('pdSiteWeb');            // só robôs preenchem este campo invisível
+  if(armadilha){ fecharPedido(); toast('Pedido enviado. Obrigado — entraremos em contacto.'); return; }
   if(NUVEM){
     toast('A enviar…');
     const r=await NUVEM.from('pedidos').insert(p);
-    if(r.error){ toast('Não foi possível enviar: '+r.error.message); return; }
+    if(r.error){
+      console.warn('pedido:', r.error.code);   // sem dados pessoais na consola
+      toast(r.error.code==='P0001' ? r.error.message : 'Não foi possível enviar o pedido. Tente de novo dentro de alguns minutos.');
+      return;
+    }
   }else{
     PEDIDOS.unshift(Object.assign({id:'p'+Date.now(), estado:'novo', criado_em:new Date().toISOString()},p));
     try{ localStorage.setItem(CHAVE_PEDIDOS,JSON.stringify(PEDIDOS)); }catch(e){}

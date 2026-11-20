@@ -176,4 +176,27 @@ await comoAdmin(() => q(`insert into storage.objects (bucket_id,name) values ('f
 console.log('  público lê admin/site/*:', (await comoAnon(() => q(`select count(*)::int n from storage.objects where name='admin/site/vitrine1.jpg'`)))[0].n === 1);
 await comoAdmin(() => q(`update eventos set publico=true where id=$1`, [ev3]));
 console.log('  capa de parte continua legível:', (await comoAnon(() => q(`select count(*)::int n from storage.objects where name=$1`, [`admin/${ev3}/capa/parte.jpg`])))[0].n === 1);
-console.log('\nTUDO OK');
+// ---------- limites anti-abuso ----------
+const lim = fs.readFileSync(dir + '/20261120120000_limites.sql', 'utf8');
+await db.exec(lim); await db.exec(lim); ok('limites aplicado (2x)');
+await db.exec(`set request.headers = '{"x-forwarded-for":"41.220.1.1, 10.0.0.1"}'`);
+const pedido = (extra = '') => comoAnon(() => q(`insert into pedidos (nome, contacto${extra ? ', site_web' : ''}) values ('Ana','840000000'${extra ? `,'${extra}'` : ''})`));
+for (let i = 0; i < 5; i++) await pedido();
+ok('5 pedidos do mesmo IP aceites');
+await falha('6.º pedido do mesmo IP na mesma hora', () => pedido());
+await db.exec(`set request.headers = '{"x-forwarded-for":"41.220.2.2"}'`);
+await pedido(); ok('outro IP continua a poder enviar');
+await falha('campo-armadilha preenchido', () => pedido('https://spam.example'));
+await comoAdmin(() => q(`insert into pedidos (nome, contacto) values ('Admin','x@x.co')`)); ok('admin sem limite');
+await falha('anónimo a ler a tabela de limites', () => comoAnon(() => q(`select * from limites`)));
+await falha('anónimo a chamar dentro_do_limite', () => comoAnon(() => q(`select dentro_do_limite('x',1,1)`)));
+const ips = (await q(`select chave from limites`)).map(r => r.chave).join(' ');
+if (/41\.220/.test(ips)) { console.log('✗ IP guardado em claro'); process.exitCode = 1; } else ok('IPs guardados só como hash');
+const evPub = (await q(`select id from eventos where publico limit 1`))[0].id;
+await db.exec(`set request.headers = '{"x-forwarded-for":"41.220.3.3"}'`);
+const antesV = (await q(`select coalesce(sum(n),0)::int n from visitas where evento_id=$1`, [evPub]))[0].n;
+for (let i = 0; i < 65; i++) await comoAnon(() => q(`select registar_visita($1)`, [evPub]));
+const depoisV = (await q(`select coalesce(sum(n),0)::int n from visitas where evento_id=$1`, [evPub]))[0].n;
+if (depoisV - antesV === 60) ok('visitas: só 60 contam em 10 minutos, sem erro'); else { console.log('✗ visitas contadas:', depoisV - antesV); process.exitCode = 1; }
+await db.exec(`reset request.headers`);
+console.log(process.exitCode ? '\nHÁ FALHAS' : '\nTUDO OK');

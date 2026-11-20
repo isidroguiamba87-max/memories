@@ -38,6 +38,7 @@ const ok = (c, m) => { console.log((c ? '✓ ' : '✗ FALHOU: ') + m); if (!c) p
   t.lpSetCat('corporativo'); ok(w.document.querySelectorAll('.lp-card').length === 1, 'demo: filtro Corporativo');
   t.abrirPedido('galeria'); w.document.getElementById('pdNome').value='Ana'; w.document.getElementById('pdContacto').value='840000000'; await t.enviarPedido('galeria');
   ok(t.PEDIDOS.length === 1 && !w.document.getElementById('pedido').classList.contains('on'), 'demo: pedido guardado');
+t.abrirPedido('galeria'); w.document.getElementById('pdNome').value='Robô'; w.document.getElementById('pdContacto').value='840000001'; w.document.getElementById('pdSiteWeb').value='http://spam'; await t.enviarPedido('galeria');  ok(t.PEDIDOS.length === 1, 'anti-robô: campo-armadilha preenchido não grava o pedido');
   t.ir('admin'); w.setAdmAba('pedidos'); ok(w.document.querySelectorAll('.pedido').length === 1, 'demo: pedido aparece no painel');
   // ---- painel (fluxo do administrador) ----
   t.ir('admin'); ok(w.document.querySelectorAll('.pn-stat').length === 4 && w.document.querySelector('.pn-grafico'), 'admin 1: dashboard com estatísticas e gráfico');

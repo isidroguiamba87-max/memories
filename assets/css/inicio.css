@@ -399,3 +399,6 @@ body.sem-scroll{overflow:hidden}
 .lp-serv-txt{position:absolute; z-index:1; left:14px; right:12px; bottom:14px; display:flex; flex-direction:column; align-items:flex-start; gap:8px;
   font-size:14px; font-weight:600; line-height:1.25}
 .lp-serv.com-foto .ico{width:26px; height:26px; stroke-width:1.5}
+
+/* Campo-armadilha anti-robô do formulário de pedidos (fora do ecrã, não só escondido) */
+#pedido .lp-armadilha{position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden}
